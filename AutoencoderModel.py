@@ -16,8 +16,26 @@ import torch.nn.functional as F
 import torch.optim as optim
 import torch.nn.functional as F
 import timeit
+import torchvision
+import torchvision.transforms as transforms
 
 torch.manual_seed(1)
+
+
+transform = transforms.Compose(
+    [transforms.ToTensor(),
+     transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))])
+
+trainset = torchvision.datasets.CIFAR10(root='./data', train=True,
+                                        download=True, transform=transform)
+trainloader = torch.utils.data.DataLoader(trainset, batch_size=4,
+                                          shuffle=True, num_workers=2)
+
+testset = torchvision.datasets.CIFAR10(root='./data', train=False,
+                                       download=True, transform=transform)
+testloader = torch.utils.data.DataLoader(testset, batch_size=4,
+                                         shuffle=False, num_workers=2)
+
 
 
 class Autoencoder(nn.Module):
@@ -354,8 +372,7 @@ class Autoencoder(nn.Module):
         x=self.Conv4(x)
         x = F.relu(x)
         x=self.Conv5(x)
-        output = F.relu(x)
-        
+        output = F.relu(x)       
         
         
         return(output)
