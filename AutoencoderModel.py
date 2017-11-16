@@ -107,33 +107,52 @@ class Autoencoder(nn.Module):
         
         #upBlock1
         self.Conv_1U1=nn.Conv2d(16,16,3,stride=1,padding=1) 
-        self.Conv_2U1=nn.Conv2d(16,16,1,stride=1,padding=0) 
+        self.BN_1U1=torch.nn.BatchNorm2d(16,affine=False)
+        self.Conv_2U1=nn.Conv2d(16,16,1,stride=1,padding=0)
+        self.BN_2U1=torch.nn.BatchNorm2d(16,affine=False)
         self.Conv_3U1=nn.Conv2d(16,16,3,stride=1,padding=1) 
+        self.BN_3U1=torch.nn.BatchNorm2d(16,affine=False)
         self.Conv_4U1=nn.Conv2d(32,16,3,stride=1,padding=1)
+        self.BN_4U1=torch.nn.BatchNorm2d(16,affine=False)
         self.UP_1U1=nn.ConvTranspose2d(16, 16, 2, stride=2)
-        self.Conv_5U1=nn.Conv2d(16,16,3,stride=1,padding=1) 
+        self.Conv_5U1=nn.Conv2d(16,16,3,stride=1,padding=1)
+        self.BN_5U1=torch.nn.BatchNorm2d(16,affine=False)
         self.UP_2U1=nn.ConvTranspose2d(16, 16, 2, stride=2)
         self.Conv_6U1=nn.Conv2d(16,16,3,stride=1,padding=1) 
+        self.BN_6U1=torch.nn.BatchNorm2d(16,affine=False)
         self.Conv_7U1=nn.Conv2d(32,16,3,stride=1,padding=1) 
+        self.BN_7U1=torch.nn.BatchNorm2d(16,affine=False)
         self.UP_3U1=nn.ConvTranspose2d(16, 16, 2, stride=2)
         self.Conv_8U1=nn.Conv2d(16,16,3,stride=1,padding=1) 
+        self.BN_8U1=torch.nn.BatchNorm2d(16,affine=False)
         self.Conv_9U1=nn.Conv2d(32,4,3,stride=1,padding=1) 
+        self.BN_9U1=torch.nn.BatchNorm2d(16,affine=False)
         
         #upBlock2
         self.Conv_1U2=nn.Conv2d(4,4,3,stride=1,padding=1) 
+        self.BN_1U2=torch.nn.BatchNorm2d(4,affine=False)
         self.Conv_2U2=nn.Conv2d(4,4,1,stride=1,padding=0) 
+        self.BN_2U2=torch.nn.BatchNorm2d(4,affine=False)
         self.Conv_3U2=nn.Conv2d(4,4,3,stride=1,padding=1) 
+        self.BN_3U2=torch.nn.BatchNorm2d(4,affine=False)
         self.Conv_4U2=nn.Conv2d(8,4,3,stride=1,padding=1)
+        self.BN_4U2=torch.nn.BatchNorm2d(4,affine=False)
         self.UP_1U2=nn.ConvTranspose2d(4, 4, 2, stride=2)
-        self.Conv_5U2=nn.Conv2d(4,4,3,stride=1,padding=1) 
+        self.Conv_5U2=nn.Conv2d(4,4,3,stride=1,padding=1)
+        self.BN_5U2=torch.nn.BatchNorm2d(4,affine=False)
         self.UP_2U2=nn.ConvTranspose2d(4, 4, 2, stride=2)
         self.Conv_6U2=nn.Conv2d(4,4,3,stride=1,padding=1) 
+        self.BN_6U2=torch.nn.BatchNorm2d(4,affine=False)
         self.Conv_7U2=nn.Conv2d(8,4,3,stride=1,padding=1) 
+        self.BN_7U2=torch.nn.BatchNorm2d(4,affine=False)
         self.UP_3U2=nn.ConvTranspose2d(16, 8, 2, stride=2)
         self.Conv_8U2=nn.Conv2d(8,8,3,stride=1,padding=1) 
+        #self.BN_8U2=torch.nn.BatchNorm2d(4,affine=False)
         self.UP_4U2=nn.ConvTranspose2d(8, 4, 2, stride=2)
         self.Conv_9U2=nn.Conv2d(4,4,3,stride=1,padding=1) 
+        self.BN_9U2=torch.nn.BatchNorm2d(4,affine=False)
         self.Conv_10U2=nn.Conv2d(8,4,3,stride=1,padding=1) 
+        self.BN_10U2=torch.nn.BatchNorm2d(4,affine=False)
         
         #last step
         self.Conv2=nn.Conv2d(4,4,3,stride=1,padding=1) 
@@ -286,54 +305,34 @@ class Autoencoder(nn.Module):
                
         #first UPblock
         x = self.Conv_1U1(code)
-<<<<<<< HEAD
-        x = torch.nn.BatchNorm2d(x.size()[1],affine=False).cuda()(x)
+        x = self.BN_1U1(x)
         x = F.relu(x)
         
         y1 = self.Conv_2U1(x)
-        y1 = torch.nn.BatchNorm2d(x.size()[1],affine=False).cuda()(y1)
+        y1= self.BN_2U1(y1)
         y1 = F.relu(y1)
         
         y2 = self.Conv_3U1(x)
-        y2 = torch.nn.BatchNorm2d(x.size()[1],affine=False).cuda()(y2)
-=======
-        x = torch.nn.BatchNorm2d(x.size()[1],affine=False)(x)
-        x = F.relu(x)
-        
-        y1 = self.Conv_2U1(x)
-        y1 = torch.nn.BatchNorm2d(x.size()[1],affine=False)(y1)
-        y1 = F.relu(y1)
-        
-        y2 = self.Conv_3U1(x)
-        y2 = torch.nn.BatchNorm2d(x.size()[1],affine=False)(y2)
->>>>>>> cc99a5cba545d90da05075e52d185d87c20637f7
+        y2= self.BN_3U1(y2)
         y2 = F.relu(y2)
         
         x=torch.cat((y1,y2),1)
         
         x = self.Conv_4U1(x)
-<<<<<<< HEAD
-        x = torch.nn.BatchNorm2d(x.size()[1],affine=False).cuda()(x)
-=======
-        x = torch.nn.BatchNorm2d(x.size()[1],affine=False)(x)
->>>>>>> cc99a5cba545d90da05075e52d185d87c20637f7
+        x= self.BN_4U1(x)
+
         x = F.relu(x)
         x=self.UP_1U1(x)
         
         x = self.Conv_5U1(x)
-<<<<<<< HEAD
-        x = torch.nn.BatchNorm2d(x.size()[1],affine=False).cuda()(x)
-=======
-        x = torch.nn.BatchNorm2d(x.size()[1],affine=False)(x)
->>>>>>> cc99a5cba545d90da05075e52d185d87c20637f7
+        x= self.BN_5U1(x)
+
         z1 = F.relu(x)
         
         z2=self.UP_2U1(code)
         z2 = self.Conv_6U1(z2)
-<<<<<<< HEAD
-        z2 = torch.nn.BatchNorm2d(z2.size()[1],affine=False).cuda()(z2)
-        z2 = F.relu(z2)
-        
+        z2=self.BN_6U1(z2)
+        z2 = F.relu(z2)      
         
        
 
@@ -341,40 +340,21 @@ class Autoencoder(nn.Module):
         
 
         x = self.Conv_7U1(x)
-        x = torch.nn.BatchNorm2d(x.size()[1],affine=False).cuda()(x)
-=======
-        z2 = torch.nn.BatchNorm2d(z2.size()[1],affine=False)(z2)
-        z2 = F.relu(z2)
-        
-        print("z1",z1.size())
-        print("z2",z2.size())
-
-        x=torch.cat((z1,z2),1)
-        print("x",x.size())
-
-        x = self.Conv_7U1(x)
-        x = torch.nn.BatchNorm2d(x.size()[1],affine=False)(x)
->>>>>>> cc99a5cba545d90da05075e52d185d87c20637f7
+        x= self.BN_7U1(x)
         q1 = F.relu(x)
         
         
         q2=self.UP_3U1(code)
         q2 = self.Conv_8U1(q2)
-<<<<<<< HEAD
-        q2 = torch.nn.BatchNorm2d(q2.size()[1],affine=False).cuda()(q2)
-=======
-        q2 = torch.nn.BatchNorm2d(q2.size()[1],affine=False)(q2)
->>>>>>> cc99a5cba545d90da05075e52d185d87c20637f7
+        q2= self.BN_8U1(q2)
+
         q2 = F.relu(q2)
         
         x=torch.cat((q1,q2),1)
 
         x = self.Conv_9U1(x)
-<<<<<<< HEAD
-        x = torch.nn.BatchNorm2d(x.size()[1],affine=False).cuda()(x)
-=======
-        x = torch.nn.BatchNorm2d(x.size()[1],affine=False)(x)
->>>>>>> cc99a5cba545d90da05075e52d185d87c20637f7
+        x= self.BN_9U1(x)
+
         afterFirstUp = F.relu(x)
         
         
@@ -384,73 +364,40 @@ class Autoencoder(nn.Module):
         
         #   second UPblock
         x = self.Conv_1U2(afterFirstUp)
-<<<<<<< HEAD
-        x = torch.nn.BatchNorm2d(x.size()[1],affine=False).cuda()(x)
+        x= self.BN_1U2(x)
         x = F.relu(x)
         
         y1 = self.Conv_2U2(x)
-        y1 = torch.nn.BatchNorm2d(x.size()[1],affine=False).cuda()(y1)
+        y1= self.BN_2U2(y1)
         y1 = F.relu(y1)
         
         y2 = self.Conv_3U2(x)
-        y2 = torch.nn.BatchNorm2d(x.size()[1],affine=False).cuda()(y2)
-=======
-        x = torch.nn.BatchNorm2d(x.size()[1],affine=False)(x)
-        x = F.relu(x)
-        
-        y1 = self.Conv_2U2(x)
-        y1 = torch.nn.BatchNorm2d(x.size()[1],affine=False)(y1)
-        y1 = F.relu(y1)
-        
-        y2 = self.Conv_3U2(x)
-        y2 = torch.nn.BatchNorm2d(x.size()[1],affine=False)(y2)
->>>>>>> cc99a5cba545d90da05075e52d185d87c20637f7
+        y2= self.BN_3U2(y2)
         y2 = F.relu(y2)
         
         x=torch.cat((y1,y2),1)
         
         x = self.Conv_4U2(x)
-<<<<<<< HEAD
-        x = torch.nn.BatchNorm2d(x.size()[1],affine=False).cuda()(x)
-=======
-        x = torch.nn.BatchNorm2d(x.size()[1],affine=False)(x)
->>>>>>> cc99a5cba545d90da05075e52d185d87c20637f7
+        x= self.BN_4U2(x)
         x = F.relu(x)
         
         
         x=self.UP_1U2(x)
         
         x = self.Conv_5U2(x)
-<<<<<<< HEAD
-        x = torch.nn.BatchNorm2d(x.size()[1],affine=False).cuda()(x)
-=======
-        x = torch.nn.BatchNorm2d(x.size()[1],affine=False)(x)
->>>>>>> cc99a5cba545d90da05075e52d185d87c20637f7
+        x= self.BN_5U2(x)
         z1 = F.relu(x)
         
         z2=self.UP_2U2(afterFirstUp)
         z2 = self.Conv_6U2(z2)
-<<<<<<< HEAD
-        z2 = torch.nn.BatchNorm2d(z2.size()[1],affine=False).cuda()(z2)
-=======
-        z2 = torch.nn.BatchNorm2d(z2.size()[1],affine=False)(z2)
->>>>>>> cc99a5cba545d90da05075e52d185d87c20637f7
+        z2= self.BN_6U2(z2)
         z2 = F.relu(z2)
         
         
 
         x=torch.cat((z1,z2),1)
-<<<<<<< HEAD
-        
-
         x = self.Conv_7U2(x)
-        x = torch.nn.BatchNorm2d(x.size()[1],affine=False).cuda()(x)
-=======
-        print("x",x.size())
-
-        x = self.Conv_7U2(x)
-        x = torch.nn.BatchNorm2d(x.size()[1],affine=False)(x)
->>>>>>> cc99a5cba545d90da05075e52d185d87c20637f7
+        x= self.BN_7U2(x)
         q1 = F.relu(x)
         
         
@@ -458,31 +405,20 @@ class Autoencoder(nn.Module):
         q2 = self.Conv_8U2(q2)
         q2=self.UP_4U2(q2)
         q2 = self.Conv_9U2(q2)
-<<<<<<< HEAD
-        q2 = torch.nn.BatchNorm2d(q2.size()[1],affine=False).cuda()(q2)
-=======
-        q2 = torch.nn.BatchNorm2d(q2.size()[1],affine=False)(q2)
->>>>>>> cc99a5cba545d90da05075e52d185d87c20637f7
+        q2= self.BN_9U2(q2)
         q2 = F.relu(q2)
         
         x=torch.cat((q1,q2),1)
 
         x = self.Conv_10U2(x)
-<<<<<<< HEAD
-        x = torch.nn.BatchNorm2d(x.size()[1],affine=False).cuda()(x)
+        x= self.BN_10U2(x)
         afterSecondUp = F.relu(x)
         
         
-# ============================================================================
-#   laST STEP
-=======
-        x = torch.nn.BatchNorm2d(x.size()[1],affine=False)(x)
-        afterSecondUp = F.relu(x)
-        
+ 
         
 # =============================================================================
 #         Last step
->>>>>>> cc99a5cba545d90da05075e52d185d87c20637f7
 # =============================================================================
         
         x=self.Conv2(afterSecondUp)
@@ -499,7 +435,6 @@ class Autoencoder(nn.Module):
 
 
 
-<<<<<<< HEAD
 #x=Variable(torch.randn(1,3,32,32))
 model=Autoencoder()
 #y=model(x)
@@ -545,10 +480,3 @@ for epoch in range(2):  # loop over the dataset multiple times
 
 
 
-=======
-x=Variable(torch.randn(1,3,32,32))
-model=Autoencoder()
-y=model(x)
-
-print(y.size())
->>>>>>> cc99a5cba545d90da05075e52d185d87c20637f7
