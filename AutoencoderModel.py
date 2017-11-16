@@ -45,6 +45,13 @@ testloader = torch.utils.data.DataLoader(testset, batch_size=4,
                                          shuffle=False, num_workers=2)
 
 print("data loadeid")
+
+print('number of images in training set : ',len(trainloader))
+print('number of images in test set : ',len(testloader))
+
+
+
+
 class Autoencoder(nn.Module):
     def __init__(self,
                  input_shape=(32,32,3)):
@@ -101,6 +108,7 @@ class Autoencoder(nn.Module):
         self.BN_7B2=torch.nn.BatchNorm2d(16,affine=False)
         self.Conv_8B2=nn.Conv2d(3,16,3,stride=1,padding=1) 
         self.Conv_9B2=nn.Conv2d(16,16,3,stride=1,padding=1) 
+        self.BN_9B2=torch.nn.BatchNorm2d(16,affine=False)
         self.Conv_10B2=nn.Conv2d(32,16,3,stride=1,padding=1) 
         self.BN_10B2=torch.nn.BatchNorm2d(16,affine=False)
       
@@ -126,7 +134,7 @@ class Autoencoder(nn.Module):
         self.Conv_8U1=nn.Conv2d(16,16,3,stride=1,padding=1) 
         self.BN_8U1=torch.nn.BatchNorm2d(16,affine=False)
         self.Conv_9U1=nn.Conv2d(32,4,3,stride=1,padding=1) 
-        self.BN_9U1=torch.nn.BatchNorm2d(16,affine=False)
+        self.BN_9U1=torch.nn.BatchNorm2d(4,affine=False)
         
         #upBlock2
         self.Conv_1U2=nn.Conv2d(4,4,3,stride=1,padding=1) 
@@ -183,7 +191,6 @@ class Autoencoder(nn.Module):
         x = F.relu(x)
         
         x = self.Conv1(x)
-        x = torch.nn.BatchNorm2d(x.size()[1],affine=False).cuda()(x)
         x = self.BN_2(x)
         afterFirstStep = F.relu(x)
 
@@ -435,14 +442,14 @@ class Autoencoder(nn.Module):
 
 
 
-#x=Variable(torch.randn(1,3,32,32))
+x=Variable(torch.randn(1,3,32,32))
 model=Autoencoder()
-#y=model(x)
+y=model(x)
 model.cuda()
 print('model loaded')
 
 
-#print(y.size())
+print(y.size())
 import torch.optim as optim
 criterion=torch.nn.MSELoss().cuda()
 optimizer = optim.SGD(model.parameters(), lr=0.001, momentum=0.9)
@@ -465,18 +472,19 @@ for epoch in range(2):  # loop over the dataset multiple times
         loss.backward()
         optimizer.step()
     # print statistics
-    running_loss += loss.data[0]
-    if i % 2000 == 1999:    # print every 2000 mini-batches
+        running_loss += loss.data[0]
+        if i % 2000 == 1999:    # print every 2000 mini-batches
             print('[%d, %5d] loss: %.3f' %
                   (epoch + 1, i + 1, running_loss / 2000))
             running_loss = 0.0
-    testLoss=0
+    testLoss=0.0
     for data in testloader:
         images, labels = data
-        outputs = model(Variable(images.cuda()))
+        images=Variable(images.cuda())
+        outputs = model(images)
         loss=criterion(outputs,images)        
         testLoss+=loss.data[0]
-        print("error on test", testLoss)
+    print("error on test", testLoss/len(testloader))
 
 
 
