@@ -29,6 +29,13 @@ torch.cuda
 print("modules loaded ")
 torch.manual_seed(1)
 
+Nepochs=100
+NbatchTrain=256
+NbatchTest=256
+
+
+
+
 
 transform = transforms.Compose(
     [transforms.ToTensor(),
@@ -36,19 +43,18 @@ transform = transforms.Compose(
 
 trainset = torchvision.datasets.CIFAR10(root='./data', train=True,
                                         download=True, transform=transform)
-trainloader = torch.utils.data.DataLoader(trainset, batch_size=4,
+trainloader = torch.utils.data.DataLoader(trainset, batch_size=NbatchTrain,
                                           shuffle=True, num_workers=2)
 
 testset = torchvision.datasets.CIFAR10(root='./data', train=False,
                                        download=True, transform=transform)
-testloader = torch.utils.data.DataLoader(testset, batch_size=4,
+testloader = torch.utils.data.DataLoader(testset, batch_size=NbatchTest,
                                          shuffle=False, num_workers=2)
 
 print("data loadeid")
 
 print('number of images in training set : ',len(trainloader))
 print('number of images in test set : ',len(testloader))
-
 
 
 
@@ -224,6 +230,7 @@ class Autoencoder(nn.Module):
         z1 = F.relu(x)
         
         z2=self.pool(afterFirstStep)
+        z2=self.Conv_6B1(z2)
         z2= self.BN_6B1(z2)
         z2 = F.relu(z2)
         
@@ -238,7 +245,7 @@ class Autoencoder(nn.Module):
         
         q2=self.pool(image)
         q2 = self.Conv_8B1(q2)
-        q2 = self.BN_5B1(q2)
+        q2 = self.BN_8B1(q2)
         q2 = F.relu(q2)
         
         x=torch.cat((q1,q2),1)
@@ -302,7 +309,7 @@ class Autoencoder(nn.Module):
         x=torch.cat((q1,q2),1)
 
         x = self.Conv_10B2(x)
-        x = self.BN_2B2(x)
+        x = self.BN_10B2(x)
         code = F.relu(x)
         
         
@@ -454,7 +461,7 @@ import torch.optim as optim
 criterion=torch.nn.MSELoss().cuda()
 optimizer = optim.SGD(model.parameters(), lr=0.001, momentum=0.9)
 
-for epoch in range(2):  # loop over the dataset multiple times
+for epoch in range(Nepochs):  # loop over the dataset multiple times
     running_loss = 0.0
     for i, data in enumerate(trainloader, 0):
         # get the inputs
