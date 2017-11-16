@@ -198,12 +198,7 @@ class Autoencoder(nn.Module):
         z1 = F.relu(x)
         
         z2=self.pool(afterFirstStep)
-        z2 = self.Conv_6B1(z2)
-<<<<<<< HEAD
-        z2 = torch.nn.BatchNorm2d(z2.size()[1],affine=False).cuda()(z2)
-=======
-        z2 = torch.nn.BatchNorm2d(z2.size()[1],affine=False)(z2)
->>>>>>> cc99a5cba545d90da05075e52d185d87c20637f7
+        z2= self.BN_6B1(z2)
         z2 = F.relu(z2)
         
         
@@ -211,87 +206,53 @@ class Autoencoder(nn.Module):
         x=torch.cat((z1,z2),1)
 
         x = self.Conv_7B1(x)
-<<<<<<< HEAD
-        x = torch.nn.BatchNorm2d(x.size()[1],affine=False).cuda()(x)
-=======
-        x = torch.nn.BatchNorm2d(x.size()[1],affine=False)(x)
->>>>>>> cc99a5cba545d90da05075e52d185d87c20637f7
+        x = self.BN_7B1(x)
         q1 = F.relu(x)
         
         
         q2=self.pool(image)
         q2 = self.Conv_8B1(q2)
-<<<<<<< HEAD
-        q2 = torch.nn.BatchNorm2d(q2.size()[1],affine=False).cuda()(q2)
-=======
-        q2 = torch.nn.BatchNorm2d(q2.size()[1],affine=False)(q2)
->>>>>>> cc99a5cba545d90da05075e52d185d87c20637f7
+        q2 = self.BN_5B1(q2)
         q2 = F.relu(q2)
         
         x=torch.cat((q1,q2),1)
 
         x = self.Conv_9B1(x)
-<<<<<<< HEAD
-        x = torch.nn.BatchNorm2d(x.size()[1],affine=False).cuda()(x)
-=======
-        x = torch.nn.BatchNorm2d(x.size()[1],affine=False)(x)
->>>>>>> cc99a5cba545d90da05075e52d185d87c20637f7
+        x = self.BN_9B1(x)
         afterFirstBlock = F.relu(x)
         
         
         
         #second block
         x = self.Conv_1B2(afterFirstBlock)
-<<<<<<< HEAD
-        x = torch.nn.BatchNorm2d(x.size()[1],affine=False).cuda()(x)
+        x = self.BN_1B2(x)
         x = F.relu(x)
         
         y1 = self.Conv_2B2(x)
-        y1 = torch.nn.BatchNorm2d(x.size()[1],affine=False).cuda()(y1)
+        y1 = self.BN_2B2(y1)
         y1 = F.relu(y1)
         
         y2 = self.Conv_3B2(x)
-        y2 = torch.nn.BatchNorm2d(x.size()[1],affine=False).cuda()(y2)
-=======
-        x = torch.nn.BatchNorm2d(x.size()[1],affine=False)(x)
-        x = F.relu(x)
-        
-        y1 = self.Conv_2B2(x)
-        y1 = torch.nn.BatchNorm2d(x.size()[1],affine=False)(y1)
-        y1 = F.relu(y1)
-        
-        y2 = self.Conv_3B2(x)
-        y2 = torch.nn.BatchNorm2d(x.size()[1],affine=False)(y2)
->>>>>>> cc99a5cba545d90da05075e52d185d87c20637f7
+        y2 = self.BN_3B2(y2)
         y2 = F.relu(y2)
         
         x=torch.cat((y1,y2),1)
         
         x = self.Conv_4B2(x)
-<<<<<<< HEAD
-        x = torch.nn.BatchNorm2d(x.size()[1],affine=False).cuda()(x)
-=======
-        x = torch.nn.BatchNorm2d(x.size()[1],affine=False)(x)
->>>>>>> cc99a5cba545d90da05075e52d185d87c20637f7
+        x = self.BN_4B2(x)
+
         x = F.relu(x)
         
-        x=self.pool(x)
-        
+        x=self.pool(x)        
         x = self.Conv_5B2(x)
-<<<<<<< HEAD
-        x = torch.nn.BatchNorm2d(x.size()[1],affine=False).cuda()(x)
-=======
-        x = torch.nn.BatchNorm2d(x.size()[1],affine=False)(x)
->>>>>>> cc99a5cba545d90da05075e52d185d87c20637f7
+        x = self.BN_5B2(x)
+
         z1 = F.relu(x)
         
         z2=self.pool(afterFirstBlock)
         z2 = self.Conv_6B2(z2)
-<<<<<<< HEAD
-        z2 = torch.nn.BatchNorm2d(z2.size()[1],affine=False).cuda()(z2)
-=======
-        z2 = torch.nn.BatchNorm2d(z2.size()[1],affine=False)(z2)
->>>>>>> cc99a5cba545d90da05075e52d185d87c20637f7
+        z2 = self.BN_6B2(z2)
+
         z2 = F.relu(z2)
         
         
@@ -299,11 +260,8 @@ class Autoencoder(nn.Module):
         x=torch.cat((z1,z2),1)
 
         x = self.Conv_7B2(x)
-<<<<<<< HEAD
-        x = torch.nn.BatchNorm2d(x.size()[1],affine=False).cuda()(x)
-=======
-        x = torch.nn.BatchNorm2d(x.size()[1],affine=False)(x)
->>>>>>> cc99a5cba545d90da05075e52d185d87c20637f7
+        x = self.BN_7B2(x)
+
         q1 = F.relu(x)
         
         
@@ -311,21 +269,14 @@ class Autoencoder(nn.Module):
         q2 = self.Conv_8B2(q2)
         q2=self.pool(q2)
         q2 = self.Conv_9B2(q2)
-<<<<<<< HEAD
-        q2 = torch.nn.BatchNorm2d(q2.size()[1],affine=False).cuda()(q2)
-=======
-        q2 = torch.nn.BatchNorm2d(q2.size()[1],affine=False)(q2)
->>>>>>> cc99a5cba545d90da05075e52d185d87c20637f7
+        q2= self.BN_9B2(q2)
+
         q2 = F.relu(q2)
         
         x=torch.cat((q1,q2),1)
 
         x = self.Conv_10B2(x)
-<<<<<<< HEAD
-        x = torch.nn.BatchNorm2d(x.size()[1],affine=False).cuda()(x)
-=======
-        x = torch.nn.BatchNorm2d(x.size()[1],affine=False)(x)
->>>>>>> cc99a5cba545d90da05075e52d185d87c20637f7
+        x = self.BN_2B2(x)
         code = F.relu(x)
         
         
