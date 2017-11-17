@@ -18,7 +18,7 @@ import torch.nn.functional as F
 import timeit
 import torchvision
 import torchvision.transforms as transforms
-
+import os
 
 
 print("using CUDA : ",torch.cuda.is_available())
@@ -29,7 +29,7 @@ torch.cuda
 print("modules loaded ")
 torch.manual_seed(1)
 
-Nepochs=100
+Nepochs=200000
 NbatchTrain=10000
 NbatchTest=500
 
@@ -52,9 +52,13 @@ testloader = torch.utils.data.DataLoader(testset, batch_size=NbatchTest,
                                          shuffle=False, num_workers=2)
 
 print("data loadeid")
+TotalTrain=len(trainloader)*NbatchTrain
+TotalTest=len(testloader)*NbatchTest
+print('number of images in training set : ',TotalTrain)
+print("done in {} mini-batches of size {}".format(len(trainloader),NbatchTrain))
+print('number of images in test set : ',TotalTest)
+print("done in {} mini-batches of size {}".format(len(testloader),NbatchTest))
 
-print('number of images in training set : ',len(trainloader))
-print('number of images in test set : ',len(testloader))
 
 
 
@@ -461,8 +465,21 @@ import torch.optim as optim
 criterion=torch.nn.MSELoss().cuda()
 #optimizer = optim.SGD(model.parameters(), lr=0.001, momentum=0.9)
 optimizer=optim.Adam(model.parameters(), lr=0.001)
+#optimizer=optim.Adadelta(model.parameters())
+filename="./results/Exp{}/data/data.txt".format(Nexperience)
+index=2
+while(os.path.exists(filename)):
+    print("file aldready existing, using a new path ",end=" ")
+    filename="./results/Exp{}/data/data-{}.txt".format(Nexperience,index)
+    print(filename)
+    index+=1
+
+
+
+
 for epoch in range(Nepochs):  # loop over the dataset multiple times
     running_loss = 0.0
+    totalLoss=0.0
     for i, data in enumerate(trainloader, 0):
         # get the inputs
         inputs, labels = data
@@ -479,6 +496,7 @@ for epoch in range(Nepochs):  # loop over the dataset multiple times
         loss.backward()
         optimizer.step()
     # print statistics
+        totalLoss+=loss.data[0]
         running_loss += loss.data[0]
         print('[epoch %d / %d, mini-batch %5d / %d] loss: %.3f' %(epoch + 1,Nepochs, i + 1,len(trainloader), running_loss))
         running_loss = 0.0
@@ -490,8 +508,17 @@ for epoch in range(Nepochs):  # loop over the dataset multiple times
         outputs = model(images)
         loss=criterion(outputs,images)        
         testLoss+=loss.data[0]
-    print("End of epoch ",epoch+1, ", error on test", testLoss/len(testloader))
+    testLoss/=len(testloader)
+    print("End of epoch ",epoch+1, ", error on test", testLoss)
+    #save the data
+    totalLoss/=len(trainloader)
+    print("End of epoch ",epoch+1," error on training set ",totalLoss ," error on test ", testLoss)
+       
+    f= open(filename,"a")
+    f.write("{},{},{}\n".format(epoch+1,totalLoss,testLoss))
+    f.close()
     #save the model
-    model.save_state_dict('./results/Exp{}/Exp{}Epoch{}.pt'.format(Nexperience,Nexperience,epoch+1))
+    if epoch%1000==0:
+        torch.save(model,'./results/Exp{}/models/Exp{}Epoch{}.pt'.format(Nexperience,Nexperience,epoch+1))
 
 
