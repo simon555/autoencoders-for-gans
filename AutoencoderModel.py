@@ -30,10 +30,10 @@ print("modules loaded ")
 torch.manual_seed(1)
 
 Nepochs=100
-NbatchTrain=256
-NbatchTest=256
+NbatchTrain=10000
+NbatchTest=500
 
-
+Nexperience=1
 
 
 
@@ -459,8 +459,8 @@ print('model loaded')
 print(y.size())
 import torch.optim as optim
 criterion=torch.nn.MSELoss().cuda()
-optimizer = optim.SGD(model.parameters(), lr=0.001, momentum=0.9)
-
+#optimizer = optim.SGD(model.parameters(), lr=0.001, momentum=0.9)
+optimizer=optim.Adam(model.parameters(), lr=0.001)
 for epoch in range(Nepochs):  # loop over the dataset multiple times
     running_loss = 0.0
     for i, data in enumerate(trainloader, 0):
@@ -480,10 +480,9 @@ for epoch in range(Nepochs):  # loop over the dataset multiple times
         optimizer.step()
     # print statistics
         running_loss += loss.data[0]
-        if i % 2000 == 1999:    # print every 2000 mini-batches
-            print('[%d, %5d] loss: %.3f' %
-                  (epoch + 1, i + 1, running_loss / 2000))
-            running_loss = 0.0
+        print('[epoch %d / %d, mini-batch %5d / %d] loss: %.3f' %(epoch + 1,Nepochs, i + 1,len(trainloader), running_loss))
+        running_loss = 0.0
+    #processing test set
     testLoss=0.0
     for data in testloader:
         images, labels = data
@@ -491,7 +490,8 @@ for epoch in range(Nepochs):  # loop over the dataset multiple times
         outputs = model(images)
         loss=criterion(outputs,images)        
         testLoss+=loss.data[0]
-    print("error on test", testLoss/len(testloader))
-
+    print("End of epoch ",epoch+1, ", error on test", testLoss/len(testloader))
+    #save the model
+    model.save_state_dict('./results/Exp{}/Exp{}Epoch{}.pt'.format(Nexperience,Nexperience,epoch+1))
 
 
