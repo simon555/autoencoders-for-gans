@@ -30,10 +30,10 @@ print("modules loaded ")
 torch.manual_seed(1)
 
 Nepochs=200000
-NbatchTrain=10000
-NbatchTest=500
+NbatchTrain=500
+NbatchTest=100
 
-Nexperience=1
+Nexperience=2
 
 
 
