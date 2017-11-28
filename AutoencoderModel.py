@@ -30,7 +30,7 @@ print("modules loaded ")
 torch.manual_seed(1)
 
 Nepochs=200000
-NbatchTrain=500
+NbatchTrain=200
 NbatchTest=100
 
 Nexperience=2
@@ -59,8 +59,8 @@ print("done in {} mini-batches of size {}".format(len(trainloader),NbatchTrain))
 print('number of images in test set : ',TotalTest)
 print("done in {} mini-batches of size {}".format(len(testloader),NbatchTest))
 
-
-
+N1=4
+N2=8
 
 class Autoencoder(nn.Module):
     def __init__(self,
@@ -75,10 +75,10 @@ class Autoencoder(nn.Module):
         
         #first step
 
-        self.Conv0=nn.Conv2d(3,4,3,stride=1,padding=1)
-        self.BN_1=torch.nn.BatchNorm2d(4,affine=False)
-        self.Conv1=nn.Conv2d(4,4,3,stride=1,padding=1) 
-        self.BN_2=torch.nn.BatchNorm2d(4,affine=False)
+        self.Conv0=nn.Conv2d(3,N1,3,stride=1,padding=1)
+        self.BN_1=torch.nn.BatchNorm2d(N1,affine=False)
+        self.Conv1=nn.Conv2d(N1,N1,3,stride=1,padding=1) 
+        self.BN_2=torch.nn.BatchNorm2d(N:1,affine=False)
 
         #block1
         self.Conv_1B1=nn.Conv2d(4,4,3,stride=1,padding=1) 
