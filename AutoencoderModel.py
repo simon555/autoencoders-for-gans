@@ -33,7 +33,7 @@ Nepochs=200000
 NbatchTrain=200
 NbatchTest=100
 
-Nexperience=2
+Nexperience=4
 
 
 
@@ -59,7 +59,7 @@ print("done in {} mini-batches of size {}".format(len(trainloader),NbatchTrain))
 print('number of images in test set : ',TotalTest)
 print("done in {} mini-batches of size {}".format(len(testloader),NbatchTest))
 
-N1=16
+N1=32
 N2=N1*N1
 
 class Autoencoder(nn.Module):
@@ -519,6 +519,6 @@ for epoch in range(Nepochs):  # loop over the dataset multiple times
     f.close()
     #save the model
     if epoch%1000==0:
-        torch.save(model,'./results/Exp{}/models/Exp{}Epoch{}.pt'.format(Nexperience,Nexperience,epoch+1))
+        torch.save(model.state_dict(),'./results/Exp{}/models/Exp{}Epoch{}.pt'.format(Nexperience,Nexperience,epoch+1))
 
 
