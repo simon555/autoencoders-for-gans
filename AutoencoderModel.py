@@ -117,16 +117,29 @@ class Autoencoder(nn.Module):
         self.BN_1P=torch.nn.BatchNorm2d(N1)
         self.Conv_2P=nn.Conv2d(N1,Nblocks,3,stride=1,padding=1) 
         self.BN_2P=torch.nn.BatchNorm2d(Nblocks)
+        self.Conv_3P=nn.Conv2d(Nblocks,Nblocks,3,stride=1,padding=1) 
+        self.BN_3P=torch.nn.BatchNorm2d(Nblocks)
+        self.Conv_4P=nn.Conv2d(Nblocks,Nblocks,3,stride=1,padding=1) 
+        self.BN_4P=torch.nn.BatchNorm2d(Nblocks)
         
         #encoding blocks
         self.Code_B1=Block(Nblocks)
         self.Code_B2=Block(Nblocks)        
         self.Code_B3=Block(Nblocks)
+        self.Code_B4=Block(Nblocks)
+        self.Code_B5=Block(Nblocks)
+        self.Code_B6=Block(Nblocks)
+
+
         
         #decoding blocks
         self.DeCode_B1=Block(Nblocks)
         self.DeCode_B2=Block(Nblocks)
         self.DeCode_B3=Block(Nblocks)
+        self.DeCode_B4=Block(Nblocks)
+        self.DeCode_B5=Block(Nblocks)
+        self.DeCode_B6=Block(Nblocks)
+
 
         
         #last step
@@ -154,31 +167,47 @@ class Autoencoder(nn.Module):
         x = self.Conv_2P(x)
         x = self.BN_2P(x)
         x = F.relu(x)
+        
+        x = self.Conv_3P(x)
+        x = self.BN_3P(x)
+        x = F.relu(x)
+        
+        x = self.Conv_4P(x)
+        x = self.BN_4P(x)
+        x = F.relu(x)
 
 # =============================================================================
 #       CODE
 # =============================================================================
-        x=self.pool(x)   
         x=self.Code_B1.forward(x)
-        
-        x=self.pool(x)
         x=self.Code_B2.forward(x)
+        x=self.pool(x)   
+
         
-        x=self.pool(x)
         x=self.Code_B3.forward(x)
+        x=self.Code_B4.forward(x)
+        x=self.pool(x)
+        
+        x=self.Code_B5.forward(x)
+        x=self.Code_B6.forward(x)
+
+
         
         
 # =============================================================================
 #         DECODE
 # =============================================================================
-        x=self.upSample(x)   
         x=self.DeCode_B1.forward(x)
-        
+        x=self.DeCode_B2.forward(x)        
         x=self.upSample(x)
-        x=self.DeCode_B2.forward(x)
         
-        x=self.upSample(x)
         x=self.DeCode_B3.forward(x)
+        x=self.DeCode_B4.forward(x)
+        x=self.upSample(x)
+        
+        x=self.DeCode_B5.forward(x)
+        x=self.DeCode_B6.forward(x)
+
         
 # =============================================================================
 #         Last step
