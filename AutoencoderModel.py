@@ -30,7 +30,7 @@ print("modules loaded ")
 torch.manual_seed(1)
 
 Nepochs=200000
-NbatchTrain=500
+NbatchTrain=50
 NbatchTest=100
 
 Nexperience=7
@@ -61,6 +61,8 @@ print("done in {} mini-batches of size {}".format(len(testloader),NbatchTest))
 
 N1=32
 N2=N1*N1
+learningRate=0.01
+
 
 class Block(nn.Module):
     def __init__(self, Nchannels):        
@@ -244,9 +246,9 @@ print(y.size())
 import torch.optim as optim
 criterion=torch.nn.MSELoss().cuda()
 #optimizer = optim.SGD(model.parameters(), lr=0.001, momentum=0.9)
-optimizer=optim.Adam(model.parameters(), lr=0.001)
+optimizer=optim.Adam(model.parameters(), lr=learningRate)
 #optimizer=optim.Adadelta(model.parameters())
-filename="./results/Exp{}/data/data.txt".format(Nexperience)
+filename="./results/Exp{}/data/data_lr-{}.txt".format(Nexperience,learningRate)
 index=2
 while(os.path.exists(filename)):
     print("file aldready existing, using a new path ",end=" ")
