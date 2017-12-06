@@ -29,7 +29,7 @@ torch.cuda
 print("modules loaded ")
 torch.manual_seed(1)
 
-Nepochs=200000
+Nepochs=100
 NbatchTrain=50
 NbatchTest=100
 
@@ -59,9 +59,9 @@ print("done in {} mini-batches of size {}".format(len(trainloader),NbatchTrain))
 print('number of images in test set : ',TotalTest)
 print("done in {} mini-batches of size {}".format(len(testloader),NbatchTest))
 
-N1=32
+N1=64
 N2=N1*N1
-learningRate=0.01
+learningRate=0.001
 
 
 class Block(nn.Module):
@@ -300,7 +300,7 @@ for epoch in range(Nepochs):  # loop over the dataset multiple times
     f.write("{},{},{}\n".format(epoch+1,totalLoss,testLoss))
     f.close()
     #save the model
-    if epoch%1000==0:
+    if epoch%10==0:
         torch.save(model.state_dict(),'./results/Exp{}/models/Exp{}Epoch{}.pt'.format(Nexperience,Nexperience,epoch+1))
 
 
