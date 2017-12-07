@@ -114,8 +114,8 @@ class Autoencoder(nn.Module):
         Nblocks=64
         
         #first step
-
-        self.Conv_1P=nn.Conv2d(3,N1,3,stride=1,padding=1)
+        self.inputDim=input_shape[0]
+        self.Conv_1P=nn.Conv2d(self.inputDim,N1,3,stride=1,padding=1)
         self.BN_1P=torch.nn.BatchNorm2d(N1)
         self.Conv_2P=nn.Conv2d(N1,Nblocks,3,stride=1,padding=1) 
         self.BN_2P=torch.nn.BatchNorm2d(Nblocks)
@@ -148,9 +148,9 @@ class Autoencoder(nn.Module):
         
         #last step
         self.Conv_1F=nn.Conv2d(Nblocks,N1,3,stride=1,padding=1) 
-        self.Conv_2F=nn.Conv2d(N1,3,3,stride=1,padding=1) 
-        self.Conv_3F=nn.Conv2d(3,3,3,stride=1,padding=1) 
-        self.Conv_4F=nn.Conv2d(3,3,3,stride=1,padding=1)       
+        self.Conv_2F=nn.Conv2d(N1,self.inputDim,3,stride=1,padding=1) 
+        self.Conv_3F=nn.Conv2d(self.inputDim,self.inputDim,3,stride=1,padding=1) 
+        self.Conv_4F=nn.Conv2d(self.inputDim,self.inputDim,3,stride=1,padding=1)       
         
 
  
