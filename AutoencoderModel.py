@@ -33,7 +33,7 @@ Nepochs=100
 NbatchTrain=50
 NbatchTest=100
 
-Nexperience=7
+Nexperience=8
 
 
 
@@ -58,6 +58,9 @@ print('number of images in training set : ',TotalTrain)
 print("done in {} mini-batches of size {}".format(len(trainloader),NbatchTrain))
 print('number of images in test set : ',TotalTest)
 print("done in {} mini-batches of size {}".format(len(testloader),NbatchTest))
+
+
+
 
 N1=64
 N2=N1*N1
@@ -99,7 +102,7 @@ class Block(nn.Module):
 
 class Autoencoder(nn.Module):
     def __init__(self,
-                 input_shape=(32,32,3)):
+                 input_shape=(28,28,1)):
         
         super(Autoencoder, self).__init__()
 
@@ -114,8 +117,8 @@ class Autoencoder(nn.Module):
         Nblocks=64
         
         #first step
-        self.inputDim=input_shape[0]
-        self.Conv_1P=nn.Conv2d(self.inputDim,N1,3,stride=1,padding=1)
+        self.inputChannel=1
+        self.Conv_1P=nn.Conv2d(self.inputChannel,N1,3,stride=1,padding=1)
         self.BN_1P=torch.nn.BatchNorm2d(N1)
         self.Conv_2P=nn.Conv2d(N1,Nblocks,3,stride=1,padding=1) 
         self.BN_2P=torch.nn.BatchNorm2d(Nblocks)
@@ -148,9 +151,9 @@ class Autoencoder(nn.Module):
         
         #last step
         self.Conv_1F=nn.Conv2d(Nblocks,N1,3,stride=1,padding=1) 
-        self.Conv_2F=nn.Conv2d(N1,self.inputDim,3,stride=1,padding=1) 
-        self.Conv_3F=nn.Conv2d(self.inputDim,self.inputDim,3,stride=1,padding=1) 
-        self.Conv_4F=nn.Conv2d(self.inputDim,self.inputDim,3,stride=1,padding=1)       
+        self.Conv_2F=nn.Conv2d(N1,self.inputChannel,3,stride=1,padding=1) 
+        self.Conv_3F=nn.Conv2d(self.inputChannel,self.inputChannel,3,stride=1,padding=1) 
+        self.Conv_4F=nn.Conv2d(self.inputChannel,self.inputChannel,3,stride=1,padding=1)       
         
 
  
@@ -235,14 +238,12 @@ class Autoencoder(nn.Module):
 
 
 
-x=Variable(torch.randn(1,3,32,32))
 model=Autoencoder()
-y=model(x)
 model.cuda()
 print('model loaded')
 
 
-print(y.size())
+
 import torch.optim as optim
 criterion=torch.nn.MSELoss().cuda()
 #optimizer = optim.SGD(model.parameters(), lr=0.001, momentum=0.9)
@@ -265,7 +266,7 @@ for epoch in range(Nepochs):  # loop over the dataset multiple times
     for i, data in enumerate(trainloader, 0):
         # get the inputs
         inputs, labels = data
-
+        print('shape ', inputs.size()) 
         # wrap them in Variable
         inputs, labels = Variable(inputs.cuda()), Variable(labels.cuda())
 
