@@ -268,7 +268,7 @@ for epoch in range(Nepochs):  # loop over the dataset multiple times
         inputs, labels = data
         print('shape ', inputs.size()) 
         # wrap them in Variable
-        inputs, labels = Variable(inputs.cuda()), Variable(labels.cuda())
+        inputs = Variable(inputs.cuda())
 
         # zero the parameter gradients
         optimizer.zero_grad()
