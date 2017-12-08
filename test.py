@@ -29,11 +29,11 @@ print("modules loaded ")
 torch.manual_seed(1)
 
 Nepochs=40
-NbatchTrain=1
+NbatchTrain=32
 NbatchTest=100
 Nplot=1
 Nsave=10
-Nexperience=21
+Nexperience=11
 
 
 
@@ -145,24 +145,24 @@ class Autoencoder(nn.Module):
         
         
         #encoding blocks
-        self.Code_B1=Block(Nblocks)
-        self.Code_B2=Block(Nblocks)        
-        self.Code_B3=Block(Nblocks)
-        self.Code_B4=Block(Nblocks)
-        self.Code_B5=Block(Nblocks)
-        self.Code_B6=Block(Nblocks)
+        self.Code_B1=Block(Nblocks).cuda()
+        self.Code_B2=Block(Nblocks).cuda()        
+        self.Code_B3=Block(Nblocks).cuda()
+        self.Code_B4=Block(Nblocks).cuda()
+        self.Code_B5=Block(Nblocks).cuda()
+        self.Code_B6=Block(Nblocks).cuda()
 
 
         
         #decoding blocks
-        self.DeCode_B1=Block(Nblocks)
-        self.DeCode_B2=Block(Nblocks)
-        self.Conv_Decode1=nn.Conv2d(2*Nblocks,Nblocks,3,stride=1,padding=1) 
-        self.DeCode_B3=Block(Nblocks)
-        self.DeCode_B4=Block(Nblocks)
-        self.Conv_Decode2=nn.Conv2d(2*Nblocks,Nblocks,3,stride=1,padding=1) 
-        self.DeCode_B5=Block(Nblocks)
-        self.DeCode_B6=Block(Nblocks)
+        self.DeCode_B1=Block(Nblocks).cuda()
+        self.DeCode_B2=Block(Nblocks).cuda()
+        #self.Conv_Decode1=nn.Conv2d(2*Nblocks,Nblocks,3,stride=1,padding=1) 
+        self.DeCode_B3=Block(Nblocks).cuda()
+        self.DeCode_B4=Block(Nblocks).cuda()
+        #self.Conv_Decode2=nn.Conv2d(2*Nblocks,Nblocks,3,stride=1,padding=1) 
+        self.DeCode_B5=Block(Nblocks).cuda()
+        self.DeCode_B6=Block(Nblocks).cuda()
 
         
         
