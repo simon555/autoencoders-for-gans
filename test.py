@@ -128,8 +128,7 @@ class Autoencoder(nn.Module):
         self.BN_4P=torch.nn.BatchNorm2d(Nblocks)
         
           
-        #encoding blocks
-        #self.Code_B1=Block(Nblocks)
+        
        
 
 
@@ -140,6 +139,30 @@ class Autoencoder(nn.Module):
         self.Conv_4F=nn.Conv2d(self.inputChannel,self.inputChannel,3,stride=1,padding=1)       
         
         self.cuda
+        
+        
+        #encoding blocks
+        self.Code_B1=Block(Nblocks)
+        self.Code_B2=Block(Nblocks)        
+        self.Code_B3=Block(Nblocks)
+        self.Code_B4=Block(Nblocks)
+        self.Code_B5=Block(Nblocks)
+        self.Code_B6=Block(Nblocks)
+
+
+        
+        #decoding blocks
+        self.DeCode_B1=Block(Nblocks)
+        self.DeCode_B2=Block(Nblocks)
+        self.Conv_Decode1=nn.Conv2d(2*Nblocks,Nblocks,3,stride=1,padding=1) 
+        self.DeCode_B3=Block(Nblocks)
+        self.DeCode_B4=Block(Nblocks)
+        self.Conv_Decode2=nn.Conv2d(2*Nblocks,Nblocks,3,stride=1,padding=1) 
+        self.DeCode_B5=Block(Nblocks)
+        self.DeCode_B6=Block(Nblocks)
+
+        
+        
         #encoding blocks
         #self.Code_B1=Block(Nblocks)
 
