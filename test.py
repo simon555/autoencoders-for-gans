@@ -138,7 +138,7 @@ class Autoencoder(nn.Module):
         self.Conv_3F=nn.Conv2d(self.inputChannel,self.inputChannel,3,stride=1,padding=1) 
         self.Conv_4F=nn.Conv2d(self.inputChannel,self.inputChannel,3,stride=1,padding=1)       
         
-        self.cuda
+        self.cuda()
         
         
         #encoding blocks
