@@ -191,16 +191,8 @@ class Autoencoder(nn.Module):
         
     def decode(self,image):
          
-        x=self.Conv_1F(image)
-        x = F.relu(x)
-        x=self.Conv_2F(x)
-        x = F.relu(x)
-        x=self.Conv_3F(x)
-        x = F.relu(x)
-        x=self.Conv_4F(x)
-        x = F.relu(x)   
-        
-         x=self.DeCode_B1.forward(x)
+               
+        x=self.DeCode_B1.forward(x)
         x=self.DeCode_B2.forward(x)     
         x=self.upSample(x)        
         x=torch.cat([x,x2],dim=1)
@@ -215,6 +207,15 @@ class Autoencoder(nn.Module):
         
         x=self.DeCode_B5.forward(x)
         x=self.DeCode_B6.forward(x)
+        
+        x=self.Conv_1F(image)
+        x = F.relu(x)
+        x=self.Conv_2F(x)
+        x = F.relu(x)
+        x=self.Conv_3F(x)
+        x = F.relu(x)
+        x=self.Conv_4F(x)
+        x = F.relu(x)   
 
         
         return(x)
