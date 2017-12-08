@@ -71,28 +71,28 @@ class Block(nn.Module):
     def __init__(self, Nchannels):        
         super(Block, self).__init__()
         self.Conv_1=nn.Conv2d(Nchannels,Nchannels,3,stride=1,padding=1) 
-        self.BN_1=torch.nn.BatchNorm2d(Nchannels,affine=False)
+        self.BN_1=torch.nn.BatchNorm2d(Nchannels)
         self.Conv_2=nn.Conv2d(Nchannels,Nchannels,3,stride=1,padding=1)
-        self.BN_2=torch.nn.BatchNorm2d(Nchannels,affine=False)
+        self.BN_2=torch.nn.BatchNorm2d(Nchannels)
         self.Conv_3=nn.Conv2d(Nchannels,Nchannels,3,stride=1,padding=1) 
-        self.BN_3=torch.nn.BatchNorm2d(Nchannels,affine=False)
+        self.BN_3=torch.nn.BatchNorm2d(Nchannels)
     
     def forward(self,input):
         x = self.Conv_1(input)
         x = self.BN_1(x)
         x = F.relu(x)
         
-        x = self.Conv_2(x)
-        x = self.BN_2(x)
-        x = F.relu(x)
+        #x = self.Conv_2(x)
+        #x = self.BN_2(x)
+        #x = F.relu(x)
         
-        x+=input
-        x = F.relu(x)
+        #x+=input
+        #x = F.relu(x)
 
         
-        x = self.Conv_3(x)
-        x = self.BN_3(x)
-        x = F.relu(x)
+        #x = self.Conv_3(x)
+        #x = self.BN_3(x)
+        #x = F.relu(x)
         
         return(x)
 
@@ -129,33 +129,19 @@ class Autoencoder(nn.Module):
         
           
         #encoding blocks
-        self.Code_B1=Block(Nblocks)
-        self.Code_B2=Block(Nblocks)        
-        self.Code_B3=Block(Nblocks)
-        self.Code_B4=Block(Nblocks)
-        self.Code_B5=Block(Nblocks)
-        self.Code_B6=Block(Nblocks)
-
-
-        
-        #decoding blocks
-        self.DeCode_B1=Block(Nblocks)
-        self.DeCode_B2=Block(Nblocks)
-        self.Conv_Decode1=nn.Conv2d(2*Nblocks,Nblocks,3,stride=1,padding=1) 
-        self.DeCode_B3=Block(Nblocks)
-        self.DeCode_B4=Block(Nblocks)
-        self.Conv_Decode2=nn.Conv2d(2*Nblocks,Nblocks,3,stride=1,padding=1) 
-        self.DeCode_B5=Block(Nblocks)
-        self.DeCode_B6=Block(Nblocks)
-
+        #self.Code_B1=Block(Nblocks)
        
-        
+
+
         #last step
         self.Conv_1F=nn.Conv2d(Nblocks,N1,3,stride=1,padding=1) 
         self.Conv_2F=nn.Conv2d(N1,self.inputChannel,3,stride=1,padding=1) 
         self.Conv_3F=nn.Conv2d(self.inputChannel,self.inputChannel,3,stride=1,padding=1) 
         self.Conv_4F=nn.Conv2d(self.inputChannel,self.inputChannel,3,stride=1,padding=1)       
         
+        self.cuda
+        #encoding blocks
+        #self.Code_B1=Block(Nblocks)
 
  
     def code(self,image):        
@@ -175,16 +161,16 @@ class Autoencoder(nn.Module):
         x = self.BN_4P(x)
         x = F.relu(x)
         
-        x=self.Code_B1.forward(x)
-        x1=self.Code_B2.forward(x)
+        #x=self.Code_B1.forward(x)
+        #x=self.Code_B2.forward(x)
         
-        x=self.pool(x1)           
-        x=self.Code_B3.forward(x)
-        x2=self.Code_B4.forward(x)
+        #x=self.pool(x)           
+        #x=self.Code_B3.forward(x)
+        #x=self.Code_B4.forward(x)
         
-        x=self.pool(x2)        
-        x=self.Code_B5.forward(x)
-        x=self.Code_B6.forward(x)
+        #x=self.pool(x)        
+        #x=self.Code_B5.forward(x)
+        #x=self.Code_B6.forward(x)
 
         
         return(x)
@@ -192,21 +178,21 @@ class Autoencoder(nn.Module):
     def decode(self,image):
          
                
-        x=self.DeCode_B1.forward(x)
-        x=self.DeCode_B2.forward(x)     
-        x=self.upSample(x)        
-        x=torch.cat([x,x2],dim=1)
-        x=self.Conv_Decode1(x)
+        #x=self.DeCode_B1.forward(image)
+        #x=self.DeCode_B2.forward(x)     
+        #x=self.upSample(x)        
+        #x=torch.cat([x,x2],dim=1)
+        #x=self.Conv_Decode1(x)
         
-        x=self.DeCode_B3.forward(x)
-        x=self.DeCode_B4.forward(x)   
-        x=self.upSample(x)        
-        x=torch.cat([x,x1],dim=1)        
-        x=self.Conv_Decode2(x)
+        #x=self.DeCode_B3.forward(x)
+        #x=self.DeCode_B4.forward(x)   
+        #x=self.upSample(x)        
+        #x=torch.cat([x,x1],dim=1)        
+        #x=self.Conv_Decode2(x)
         
         
-        x=self.DeCode_B5.forward(x)
-        x=self.DeCode_B6.forward(x)
+        #x=self.DeCode_B5.forward(x)
+        #x=self.DeCode_B6.forward(x)
         
         x=self.Conv_1F(image)
         x = F.relu(x)
@@ -247,7 +233,7 @@ def plot_test(inputs,outputs):
 model=Autoencoder()
 print('model loaded')
 
-model.cuda()
+#model.cuda()
 print('cuda loaded')
 print('what ???')
 criterion=torch.nn.MSELoss().cuda()
@@ -289,7 +275,7 @@ for epoch in range(Nepochs):  # loop over the dataset multiple times
     for i, data in enumerate(trainloader, 0):
         # get the inputs
         inputs, labels = data
-        print('shape ', inputs.size()) 
+        #print('shape ', inputs.size()) 
         # wrap them in Variable
         inputs = Variable(inputs.cuda())
 
