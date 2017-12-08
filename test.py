@@ -138,6 +138,9 @@ class Autoencoder(nn.Module):
         self.Conv_3F=nn.Conv2d(self.inputChannel,self.inputChannel,3,stride=1,padding=1) 
         self.Conv_4F=nn.Conv2d(self.inputChannel,self.inputChannel,3,stride=1,padding=1)       
         
+        
+        
+        
         self.cuda()
         
         
@@ -184,15 +187,15 @@ class Autoencoder(nn.Module):
         x = self.BN_4P(x)
         x = F.relu(x)
         
-        #x=self.Code_B1.forward(x)
+        x=self.Code_B1.forward(x)
         #x=self.Code_B2.forward(x)
         
-        #x=self.pool(x)           
-        #x=self.Code_B3.forward(x)
+        x=self.pool(x)           
+        x=self.Code_B3.forward(x)
         #x=self.Code_B4.forward(x)
         
         #x=self.pool(x)        
-        #x=self.Code_B5.forward(x)
+        x=self.Code_B5.forward(x)
         #x=self.Code_B6.forward(x)
 
         
@@ -201,23 +204,23 @@ class Autoencoder(nn.Module):
     def decode(self,image):
          
                
-        #x=self.DeCode_B1.forward(image)
+        x=self.DeCode_B1.forward(image)
         #x=self.DeCode_B2.forward(x)     
-        #x=self.upSample(x)        
+        x=self.upSample(x)        
         #x=torch.cat([x,x2],dim=1)
         #x=self.Conv_Decode1(x)
         
-        #x=self.DeCode_B3.forward(x)
+        x=self.DeCode_B3.forward(x)
         #x=self.DeCode_B4.forward(x)   
         #x=self.upSample(x)        
         #x=torch.cat([x,x1],dim=1)        
         #x=self.Conv_Decode2(x)
         
         
-        #x=self.DeCode_B5.forward(x)
+        x=self.DeCode_B5.forward(x)
         #x=self.DeCode_B6.forward(x)
         
-        x=self.Conv_1F(image)
+        x=self.Conv_1F(x)
         x = F.relu(x)
         x=self.Conv_2F(x)
         x = F.relu(x)
