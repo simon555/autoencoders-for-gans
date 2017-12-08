@@ -15,7 +15,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 import torch.optim as optim
 import torch.nn.functional as F
-import timeit
+import time
 import torchvision
 import torchvision.transforms as transforms
 import os
@@ -29,11 +29,11 @@ print("modules loaded ")
 torch.manual_seed(1)
 
 Nepochs=40
-NbatchTrain=32
+NbatchTrain=1
 NbatchTest=100
 Nplot=1
 Nsave=10
-Nexperience=10
+Nexperience=21
 
 
 
@@ -271,27 +271,41 @@ print('optimizer loaded')
 
 #optimizer=optim.Adadelta(model.parameters())
 directory='./results/Exp{}/'.format(Nexperience)
+
+if not os.path.exists(directory):
+    print('new directory : ',directory)
+    
+else:
+    while(os.path.exists(directory)):
+        print('directory already exists : ',directory)
+        Nexperience+=1
+        directory='./results/Exp{}/'.format(Nexperience)
+    print('new directory : ',directory)
+        
 directoryData=directory+'data/'
 directoryModel=directory+'models/'
-if not os.path.exists(directory):
-    print('new directory for : ',directory)
-    os.makedirs(directory)    
-    os.makedirs(directoryData)
-    os.makedirs(directoryModel)
-else:
-    print('directory already exists : ',directory)
+
+
+os.makedirs(directory) 
+os.makedirs(directoryData)
+os.makedirs(directoryModel)
 
 
 
-filename="./results/Exp{}/data/data_lr-{}.txt".format(Nexperience,learningRate)
+
+filename="./results/Exp{}/data/data.txt".format(Nexperience)
 index=2
 while(os.path.exists(filename)):
     print("file aldready existing, using a new path ",end=" ")
     filename="./results/Exp{}/data/data-{}.txt".format(Nexperience,index)
     print(filename)
     index+=1
+    
 print('saving results at : ',filename)
-
+f= open(filename,"a")
+f.write("experience done on : {} at {}\n".format(time.strftime("%d/%m/%Y"),time.strftime("%H:%M:%S")))
+f.write("epoch,trainLoss,testLoss\n")
+f.close()
 
 
 print('beginning of the training')
