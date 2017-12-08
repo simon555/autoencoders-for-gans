@@ -28,12 +28,12 @@ print("using CUDA : ",torch.cuda.is_available())
 print("modules loaded ")
 torch.manual_seed(1)
 
-Nepochs=100
-NbatchTrain=1
+Nepochs=40
+NbatchTrain=32
 NbatchTest=100
 Nplot=1
 Nsave=10
-Nexperience=21
+Nexperience=10
 
 
 
@@ -184,11 +184,11 @@ class Autoencoder(nn.Module):
         return(d)
 def plot_test(inputs,outputs):
     fig=pl.figure()
-        pl.subplot(131)
-        pl.imshow(inputs.cpu().data.numpy()[0,0,:,:],cmap='gray')
-        pl.subplot(132)
-        pl.imshow(outputs.cpu().data.numpy()[0,0,:,:],cmap='gray')
-        pl.show()
+    pl.subplot(131)
+    pl.imshow(inputs.cpu().data.numpy()[0,0,:,:],cmap='gray')
+    pl.subplot(132)
+    pl.imshow(outputs.cpu().data.numpy()[0,0,:,:],cmap='gray')
+    pl.show()
 
 
 
@@ -208,7 +208,7 @@ print('optimizer loaded')
 #optimizer=optim.Adadelta(model.parameters())
 directory='./results/Exp{}/'.format(Nexperience)
 directoryData=directory+'data/'
-directoryModel=directory+'model/'
+directoryModel=directory+'models/'
 if not os.path.exists(directory):
     print('new directory for : ',directory)
     os.makedirs(directory)    
@@ -252,9 +252,9 @@ for epoch in range(Nepochs):  # loop over the dataset multiple times
     # print statistics
         totalLoss+=loss.data[0]
         running_loss += loss.data[0]
-        print('[epoch %d / %d, mini-batch %5d / %d] loss: %.3f' %(epoch + 1,Nepochs, i + 1,len(trainloader), running_loss))
+        print('[epoch %d / %d, mini-batch %5d / %d] loss: %.3e' %(epoch + 1,Nepochs, i + 1,len(trainloader), running_loss))
         running_loss = 0.0
-        print('plot')
+        
         
         #plot_test(inputs,outputs)
     #processing test set

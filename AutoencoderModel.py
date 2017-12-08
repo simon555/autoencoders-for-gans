@@ -30,7 +30,7 @@ print("modules loaded ")
 torch.manual_seed(1)
 
 Nepochs=100
-NbatchTrain=50
+NbatchTrain=250
 NbatchTest=100
 
 Nexperience=8
@@ -266,7 +266,7 @@ for epoch in range(Nepochs):  # loop over the dataset multiple times
     for i, data in enumerate(trainloader, 0):
         # get the inputs
         inputs, labels = data
-        print('shape ', inputs.size()) 
+         
         # wrap them in Variable
         inputs = Variable(inputs.cuda())
 
