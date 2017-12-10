@@ -32,13 +32,13 @@ import argparse
 torch.manual_seed(1)
 
 
-Nepochs=40
-NbatchTrain=64
+Nepochs=10000
+NbatchTrain=32
 NbatchTest=100
 Nplot=1
-Nsave=5
+Nsave=10
 Nexperience=100
-learningRate=0.001
+learningRate=0.0001
 
 N1=64
 N2=N1*N1
@@ -120,7 +120,7 @@ class Autoencoder(nn.Module):
         self.pool = nn.MaxPool2d(2, 2)
         self.upSample= nn.Upsample(scale_factor=2, mode='bilinear')
         
-        N1=32
+        N1=64
         
         Nblocks=64
         
@@ -216,7 +216,7 @@ class Autoencoder(nn.Module):
         x = F.relu(x)
         
         x=self.Code_B1.forward(x)
-        x=self.Code_B2.forward(x)       
+        #x=self.Code_B2.forward(x)       
         x=self.pool(x)           
 
 
