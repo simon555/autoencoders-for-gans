@@ -7,15 +7,6 @@ Created on Tue Oct 24 15:13:14 2017
 @author: sebbaghs
 """
 
-
-import sys
-import os
-
-currentDirectory = os.getcwd()
-if not currentDirectory in sys.path:
-    print('adding local directory : ', currentDirectory)
-    sys.path.insert(0,currentDirectory)
-
 import torch
 import matplotlib.pyplot as pl
 import numpy as np
@@ -23,65 +14,44 @@ from torch.autograd import Variable
 import torch.nn as nn
 import torch.nn.functional as F
 import torch.optim as optim
+import torch.nn.functional as F
 import time
 import torchvision
 import torchvision.transforms as transforms
-import argparse
+import os
+
+
+
 
 
 torch.manual_seed(1)
 
-
 Nepochs=40
-NbatchTrain=32
+NbatchTrain=1
 NbatchTest=100
 Nplot=1
 Nsave=10
-Nexperience=14
-learningRate=0.001
+Nexperience=21
+
+
+
+
+
 
 N1=64
 N2=N1*N1
-
-
-
-
-parser=argparse.ArgumentParser()
-parser.add_argument('--Nepochs', default=Nepochs,type=int)
-parser.add_argument('--NbatchTrain', default=NbatchTrain,type=int)
-parser.add_argument('--NbatchTest', default=NbatchTest,type=int)
-parser.add_argument('--Nplot', default=Nplot,type=int)
-parser.add_argument('--Nsave', default=Nsave,type=int)
-parser.add_argument('--Nexperience', default=Nexperience,type=int)
-parser.add_argument('--learningRate', default=learningRate,type=float)
-
-args = parser.parse_args()
-
-descriptor=''
-for i in vars(args):
-    line_new = '{:>12}  {:>12} \n'.format(i, getattr(args,i))
-    descriptor+=line_new
-    print(line_new, end='')
-    
-
-
-
-
+learningRate=0.001
 
 
 class Block(nn.Module):
     def __init__(self, Nchannels):        
         super(Block, self).__init__()
-        
         self.Conv_1=nn.Conv2d(Nchannels,Nchannels,3,stride=1,padding=1) 
         self.BN_1=torch.nn.BatchNorm2d(Nchannels)
         self.Conv_2=nn.Conv2d(Nchannels,Nchannels,3,stride=1,padding=1)
         self.BN_2=torch.nn.BatchNorm2d(Nchannels)
         self.Conv_3=nn.Conv2d(Nchannels,Nchannels,3,stride=1,padding=1) 
         self.BN_3=torch.nn.BatchNorm2d(Nchannels)
-        
-       
-            
     
     def forward(self,input):
         x = self.Conv_1(input)
@@ -108,24 +78,22 @@ class Block(nn.Module):
 
 class Autoencoder(nn.Module):
     def __init__(self,
-                 useCuda=False,
-                 inputChannel=1):
+                 input_shape=(28,28,1)):
         
         super(Autoencoder, self).__init__()
 
-        self.useCuda=useCuda
-        
-        
-        #visual parameters            
+       
+        #visual parameters
         self.pool = nn.MaxPool2d(2, 2)
         self.upSample= nn.Upsample(scale_factor=2, mode='bilinear')
+        self.input_shape=input_shape
         
         N1=32
         
-        Nblocks=32
+        Nblocks=64
         
         #first step
-        self.inputChannel=inputChannel
+        self.inputChannel=1
         self.Conv_1P=nn.Conv2d(self.inputChannel,N1,3,stride=1,padding=1)
         self.BN_1P=torch.nn.BatchNorm2d(N1)
         self.Conv_2P=nn.Conv2d(N1,Nblocks,3,stride=1,padding=1) 
@@ -137,7 +105,7 @@ class Autoencoder(nn.Module):
         
           
         
-        
+       
 
 
         #last step
@@ -147,54 +115,36 @@ class Autoencoder(nn.Module):
         self.Conv_4F=nn.Conv2d(self.inputChannel,self.inputChannel,3,stride=1,padding=1)       
         
         
+        
+        
+        self.cuda()
+        
+        
         #encoding blocks
-        self.Code_B1=Block(Nblocks)  
-        self.Code_B2=Block(Nblocks)          
-        self.Code_B3=Block(Nblocks)  
-        self.Code_B4=Block(Nblocks)  
-        self.Code_B5=Block(Nblocks)  
-        self.Code_B6=Block(Nblocks)  
+        self.Code_B1=Block(Nblocks)
+        self.Code_B2=Block(Nblocks)        
+        self.Code_B3=Block(Nblocks)
+        self.Code_B4=Block(Nblocks)
+        self.Code_B5=Block(Nblocks)
+        self.Code_B6=Block(Nblocks)
 
 
         
         #decoding blocks
-        self.DeCode_B1=Block(Nblocks)  
-        self.DeCode_B2=Block(Nblocks)  
+        self.DeCode_B1=Block(Nblocks)
+        self.DeCode_B2=Block(Nblocks)
         #self.Conv_Decode1=nn.Conv2d(2*Nblocks,Nblocks,3,stride=1,padding=1) 
-        self.DeCode_B3=Block(Nblocks)  
-        self.DeCode_B4=Block(Nblocks)  
+        self.DeCode_B3=Block(Nblocks)
+        self.DeCode_B4=Block(Nblocks)
         #self.Conv_Decode2=nn.Conv2d(2*Nblocks,Nblocks,3,stride=1,padding=1) 
-        self.DeCode_B5=Block(Nblocks)  
-        self.DeCode_B6=Block(Nblocks)  
-        
-                   
-        if (self.useCuda):
-            self.cuda()              
-            
-            #encoding blocks
-            self.Code_B1.cuda()
-            self.Code_B2.cuda()      
-            self.Code_B3.cuda()
-            self.Code_B4.cuda()
-            self.Code_B5.cuda()
-            self.Code_B6.cuda()
-            
-            #decoding blocks
-            self.DeCode_B1.cuda()
-            self.DeCode_B2.cuda()
-            #self.Conv_Decode1.cuda()
-            self.DeCode_B3.cuda()
-            self.DeCode_B4
-            #self.Conv_Decode2.cuda()
-            self.DeCode_B5.cuda()
-            self.DeCode_B6.cuda()
-            
-            
-            
-        print('use CUDA : ',self.useCuda)
+        self.DeCode_B5=Block(Nblocks)
+        self.DeCode_B6=Block(Nblocks)
+
         
         print('model loaded')
         
+        #encoding blocks
+        #self.Code_B1=Block(Nblocks)
 
  
     def code(self,image):        
@@ -265,11 +215,11 @@ class Autoencoder(nn.Module):
     def forward(self,image):
         
         c=self.code(image)
-        d=self.decode(c)            
+        d=self.decode(c)
+             
         
         return(d)
-        
-        
+    
     def plot_test(self,inputs,outputs):
         pl.figure()
         pl.subplot(131)
@@ -277,29 +227,31 @@ class Autoencoder(nn.Module):
         pl.subplot(132)
         pl.imshow(outputs.cpu().data.numpy()[0,0,:,:],cmap='gray')
         pl.show()
-    
+            
+        
 
 
 
-if __name__=='_main_':
+
+if __name__ == '__main__':
     
-    #loading dataset
     
+        
+        
     transform = transforms.Compose(
         [transforms.ToTensor(),
          transforms.Normalize((0, 0, 0), (1, 1, 1))])
-                                
-    trainset = torchvision.datasets.MNIST(root='./MNIST', train=True,
+    
+    
+    trainset = torchvision.datasets.SVHN(root='./SVHN', 
                                             download=True, transform=transform)
     trainloader = torch.utils.data.DataLoader(trainset, batch_size=NbatchTrain,
                                               shuffle=True, num_workers=2)
     
-    testset = torchvision.datasets.MNIST(root='./MNIST', train=False,
+    testset = torchvision.datasets.SVHN(root='./SVHN', test=True,
                                            download=True, transform=transform)
     testloader = torch.utils.data.DataLoader(testset, batch_size=NbatchTest,
                                              shuffle=False, num_workers=2)
-    
-    
     
     print("data loadeid")
     TotalTrain=len(trainloader)*NbatchTrain
@@ -309,29 +261,24 @@ if __name__=='_main_':
     print('number of images in test set : ',TotalTest)
     print("done in {} mini-batches of size {}".format(len(testloader),NbatchTest))
     
+        
     
-    useCuda=torch.cuda.is_available()
     
-    #get the input channels
-    imgForChannels=trainset[0][0]
-    channels=imgForChannels.size()[0]
-
-    model=Autoencoder(useCuda=useCuda,
-                      inputChannels=channels)   
+    
+    model=Autoencoder()
     print('model loaded')
     
+    #model.cuda()
+    print('cuda loaded')
+    print('what ???')
+    criterion=torch.nn.MSELoss().cuda()
+    print('critetion loaded')
     
-    
-    
-    
-    #defining optimizer
-    criterion=torch.nn.MSELoss().cuda()    
     #optimizer = optim.SGD(model.parameters(), lr=0.001, momentum=0.9)
-    #optimizer=optim.Adadelta(model.parameters())
     optimizer=optim.Adam(model.parameters(), lr=learningRate)
-
-
+    print('optimizer loaded')
     
+    #optimizer=optim.Adadelta(model.parameters())
     directory='./results/Exp{}/'.format(Nexperience)
     
     if not os.path.exists(directory):
@@ -365,9 +312,8 @@ if __name__=='_main_':
         
     print('saving results at : ',filename)
     f= open(filename,"a")
-    f.write("experience done on : {} at {}  \n".format(time.strftime("%d/%m/%Y"),time.strftime("%H:%M:%S")))
-    f.write(descriptor)
-    f.write("epoch,trainLoss,testLoss  \n")
+    f.write("experience done on : {} at {}\n".format(time.strftime("%d/%m/%Y"),time.strftime("%H:%M:%S")))
+    f.write("epoch,trainLoss,testLoss\n")
     f.close()
     
     
@@ -413,15 +359,11 @@ if __name__=='_main_':
         print("End of epoch ",epoch+1," error on training set ",totalLoss ," error on test ", testLoss)
            
         f= open(filename,"a")
-        f.write("{},{},{}  \n".format(epoch+1,totalLoss,testLoss))
+        f.write("{},{},{}\n".format(epoch+1,totalLoss,testLoss))
         f.close()
         
         #save the model
         if epoch%Nsave==0:
-            torch.save(model.state_dict(),'./results/Exp{}/models/Exp{}Epoch{}-{}.pt'.format(Nexperience,Nexperience,epoch+1,Nepochs+1))
-    #final save
-    torch.save(model.state_dict(),'./results/Exp{}/models/Exp{}Epoch{}Final.pt'.format(Nexperience,Nexperience,epoch+1))
-
-    
+            torch.save(model.state_dict(),'./results/Exp{}/models/Exp{}Epoch{}.pt'.format(Nexperience,Nexperience,epoch+1))
     
     
