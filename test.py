@@ -88,17 +88,17 @@ class Block(nn.Module):
         x = self.BN_1(x)
         x = F.relu(x)
         
-        #x = self.Conv_2(x)
-        #x = self.BN_2(x)
-        #x = F.relu(x)
+        x = self.Conv_2(x)
+        x = self.BN_2(x)
+        x = F.relu(x)
         
-        #x+=input
-        #x = F.relu(x)
+        x+=input
+        x = F.relu(x)
 
         
-        #x = self.Conv_3(x)
-        #x = self.BN_3(x)
-        #x = F.relu(x)
+        x = self.Conv_3(x)
+        x = self.BN_3(x)
+        x = F.relu(x)
         
         return(x)
 
@@ -215,15 +215,15 @@ class Autoencoder(nn.Module):
         x = F.relu(x)
         
         x=self.Code_B1.forward(x)
-        #x=self.Code_B2.forward(x)
+        x=self.Code_B2.forward(x)
         
         x=self.pool(x)           
         x=self.Code_B3.forward(x)
-        #x=self.Code_B4.forward(x)
+        x=self.Code_B4.forward(x)
         
-        #x=self.pool(x)        
+        x=self.pool(x)        
         x=self.Code_B5.forward(x)
-        #x=self.Code_B6.forward(x)
+        x=self.Code_B6.forward(x)
 
         
         return(x)
@@ -232,20 +232,20 @@ class Autoencoder(nn.Module):
          
                
         x=self.DeCode_B1.forward(image)
-        #x=self.DeCode_B2.forward(x)     
+        x=self.DeCode_B2.forward(x)     
         x=self.upSample(x)        
         #x=torch.cat([x,x2],dim=1)
         #x=self.Conv_Decode1(x)
         
         x=self.DeCode_B3.forward(x)
-        #x=self.DeCode_B4.forward(x)   
-        #x=self.upSample(x)        
+        x=self.DeCode_B4.forward(x)   
+        x=self.upSample(x)        
         #x=torch.cat([x,x1],dim=1)        
         #x=self.Conv_Decode2(x)
         
         
         x=self.DeCode_B5.forward(x)
-        #x=self.DeCode_B6.forward(x)
+        x=self.DeCode_B6.forward(x)
         
         x=self.Conv_1F(x)
         x = F.relu(x)
