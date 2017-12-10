@@ -33,10 +33,10 @@ torch.manual_seed(1)
 
 
 Nepochs=40
-NbatchTrain=32
+NbatchTrain=64
 NbatchTest=100
 Nplot=1
-Nsave=10
+Nsave=5
 Nexperience=100
 learningRate=0.001
 
@@ -122,7 +122,7 @@ class Autoencoder(nn.Module):
         
         N1=32
         
-        Nblocks=32
+        Nblocks=64
         
         #first step
         self.inputChannel=inputChannel
@@ -152,21 +152,22 @@ class Autoencoder(nn.Module):
         self.Code_B2=Block(Nblocks)          
         self.Code_B3=Block(Nblocks)  
         self.Code_B4=Block(Nblocks)  
-        self.Code_B5=Block(Nblocks)  
-        self.Code_B6=Block(Nblocks)  
-
+        self.Code_B5=Block(2*Nblocks)  
+        self.Code_B6=Block(2*Nblocks)  
+        self.Code_Conv1=nn.Conv2d(Nblocks,2*Nblocks,3,stride=1,padding=1)
 
         
         #decoding blocks
-        self.DeCode_B1=Block(Nblocks)  
-        self.DeCode_B2=Block(Nblocks)  
+        self.DeCode_B1=Block(2*Nblocks)  
+        self.DeCode_B2=Block(2*Nblocks)  
         #self.Conv_Decode1=nn.Conv2d(2*Nblocks,Nblocks,3,stride=1,padding=1) 
         self.DeCode_B3=Block(Nblocks)  
         self.DeCode_B4=Block(Nblocks)  
         #self.Conv_Decode2=nn.Conv2d(2*Nblocks,Nblocks,3,stride=1,padding=1) 
         self.DeCode_B5=Block(Nblocks)  
         self.DeCode_B6=Block(Nblocks)  
-        
+        self.DeCode_Conv1=nn.Conv2d(2*Nblocks,Nblocks,3,stride=1,padding=1)
+
                    
         if (self.useCuda):
             self.cuda()              
@@ -215,13 +216,15 @@ class Autoencoder(nn.Module):
         x = F.relu(x)
         
         x=self.Code_B1.forward(x)
-        x=self.Code_B2.forward(x)
-        
-        #x=self.pool(x)           
+        x=self.Code_B2.forward(x)       
+        x=self.pool(x)           
+
+
         x=self.Code_B3.forward(x)
         x=self.Code_B4.forward(x)
         
-        #x=self.pool(x)        
+
+        x=self.Code_Conv1(x)        
         x=self.Code_B5.forward(x)
         x=self.Code_B6.forward(x)
 
@@ -233,13 +236,13 @@ class Autoencoder(nn.Module):
                
         x=self.DeCode_B1.forward(image)
         x=self.DeCode_B2.forward(x)     
-        #x=self.upSample(x)        
+        x=self.DeCode_Conv1(x)        
         #x=torch.cat([x,x2],dim=1)
         #x=self.Conv_Decode1(x)
         
         x=self.DeCode_B3.forward(x)
         x=self.DeCode_B4.forward(x)   
-        #x=self.upSample(x)        
+        x=self.upSample(x)        
         #x=torch.cat([x,x1],dim=1)        
         #x=self.Conv_Decode2(x)
         
