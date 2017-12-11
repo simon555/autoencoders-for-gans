@@ -288,9 +288,14 @@ if __name__=='__main__':
     
     #loading dataset
     
+    def rescale(img):
+        mi=img.min()
+        ma=img.max()
+        return((img-mi)/(ma-mi))
+    
+       
     transform = transforms.Compose(
-        [transforms.ToTensor(),
-         transforms.Normalize((0, 0, 0), (1, 1, 1))])
+        [transforms.ToTensor(),transforms.Lambda(rescale)])
                                 
     trainset = torchvision.datasets.SVHN(root='./SVHN', split='train',
                                             download=True, transform=transform)
@@ -335,7 +340,7 @@ if __name__=='__main__':
 
 
     
-    directory='./results/Exp{}/'.format(Nexperience)
+    directory='{}/results/Exp{}/'.format(os.path.dirname((__file__)),Nexperience)
     
     if not os.path.exists(directory):
         print('new directory : ',directory)
@@ -344,7 +349,7 @@ if __name__=='__main__':
         while(os.path.exists(directory)):
             print('directory already exists : ',directory)
             Nexperience+=1
-            directory='./results/Exp{}/'.format(Nexperience)
+            directory='{}/results/Exp{}/'.format(os.path.dirname((__file__)),Nexperience)
         print('new directory : ',directory)
             
     directoryData=directory+'data/'
@@ -355,6 +360,12 @@ if __name__=='__main__':
     os.makedirs(directoryData)
     os.makedirs(directoryModel)
     
+    #save the model script in the data directory
+    if os.name=='nt':
+        commandBash='copy "{}" "{}"'.format(__file__,directoryData)
+    else:
+        commandBash='cp {} {}'.format(__file__,directoryData)
+    os.system(commandBash)
     
     
     
