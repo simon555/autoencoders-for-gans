@@ -344,7 +344,7 @@ if __name__=='__main__':
 
 
     
-    directory='{}/results/Exp{}/'.format(os.path.dirname((__file__)),Nexperience)
+    directory='{}/results/Exp{}/'.format(os.getcwd(),Nexperience)
     
     if not os.path.exists(directory):
         print('new directory : ',directory)
@@ -359,7 +359,8 @@ if __name__=='__main__':
     directoryData=directory+'data/'
     directoryModel=directory+'models/'
     
-    
+    #os.system('chmod 777 {}/'.format(os.path.dirname(__file__)))
+
     os.makedirs(directory) 
     os.makedirs(directoryData)
     os.makedirs(directoryModel)
@@ -368,7 +369,8 @@ if __name__=='__main__':
     if os.name=='nt':
         commandBash='copy "{}" "{}model.py"'.format(__file__,directoryData)
     else:
-        commandBash='cp {} {}'.format(__file__,directoryData)
+        #os.system('chmod 777 {}'.format(directoryData))
+        commandBash='cp {} {}model.py'.format(__file__,directoryData)
     os.system(commandBash)
     
     
