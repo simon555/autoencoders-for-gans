@@ -30,11 +30,10 @@ import inceptionDecoder
 
 class inceptionAE(nn.Module):
     def __init__(self,
-                 useCuda=False,
-                 pretrained=True):
+                 useCuda=False):
         super(inceptionAE, self).__init__()
-        self.encoder=inceptionEncoder.encoder()
-        self.decoder=inceptionDecoder.decoder()        
+        self.encoder=inceptionEncoder.encoder(pretrained=True)
+        self.decoder=inceptionDecoder.decoder(pretrained=False)        
         self.useCuda=torch.cuda.is_available()
         
         if self.useCuda:

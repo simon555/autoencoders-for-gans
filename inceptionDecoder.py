@@ -2,6 +2,7 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 import torch.utils.model_zoo as model_zoo
+from torch.autograd import Variable
 
 
 __all__ = ['Inception3', 'inception_v3']
@@ -52,7 +53,16 @@ class Inception3(nn.Module):
         super(Inception3, self).__init__()
         self.aux_logits = aux_logits
         self.transform_input = transform_input
+        self.finalConv4=FinalConv(3,3,kernel_size=3,padding=1)
+        
         self.Conv2d_1a_3x3 = BasicConv2d(32, 3, kernel_size=3, padding=2)
+        
+        self.finalConv1=FinalConv(32,32,kernel_size=3,padding=1)
+        self.finalConv2=FinalConv(32,32,kernel_size=3,padding=1)
+        self.finalConv3=FinalConv(32,32,kernel_size=3,padding=1)
+        
+        
+        
         self.upSample= nn.Upsample(scale_factor=2, mode='bilinear')
         self.Conv2d_2a_3x3 = BasicConv2d(32, 32, kernel_size=3,padding=2)
         self.Conv2d_2b_3x3 = BasicConv2d(64, 32, kernel_size=3, padding=1)
@@ -111,8 +121,14 @@ class Inception3(nn.Module):
         #print(x.size())
         x = self.upSample(x)
         #print(x.size())
+        x=self.finalConv1(x)
+        x=self.finalConv2(x)
+        x=self.finalConv3(x)
         x = self.Conv2d_1a_3x3(x)
+        x=self.finalConv4(x)
+
         #print(x.size())
+    
         
                 
         return (x)
@@ -316,7 +332,19 @@ class BasicConv2d(nn.Module):
         x = self.conv(x)
         x = self.bn(x)
         return F.relu(x, inplace=True)
+
+class FinalConv(nn.Module):
+
+    def __init__(self, in_channels, out_channels, **kwargs):
+        super(FinalConv, self).__init__()
+        self.conv = nn.Conv2d(in_channels, out_channels,bias=True, **kwargs)
+        self.bn = nn.BatchNorm2d(out_channels, eps=0.001)
+
+    def forward(self, x):
+        x = self.conv(x)
+        x = self.bn(x)
+        return F.relu(x, inplace=True)
     
-#model=decoder()
-#x=Variable(torch.randn(1,288,11,11))
-#y=model(x)
+model=decoder()
+x=Variable(torch.randn(1,288,11,11))
+y=model(x)
