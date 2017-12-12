@@ -13,7 +13,7 @@ model_urls = {
 }
 
 
-def encoder(pretrained=False, **kwargs):
+def decoder(pretrained=False, **kwargs):
     r"""Inception v3 model architecture from
     `"Rethinking the Inception Architecture for Computer Vision" <http://arxiv.org/abs/1512.00567>`_.
     Args:
@@ -52,14 +52,15 @@ class Inception3(nn.Module):
         super(Inception3, self).__init__()
         self.aux_logits = aux_logits
         self.transform_input = transform_input
-        self.Conv2d_1a_3x3 = BasicConv2d(3, 32, kernel_size=3, stride=2)
-        self.Conv2d_2a_3x3 = BasicConv2d(32, 32, kernel_size=3)
-        self.Conv2d_2b_3x3 = BasicConv2d(32, 64, kernel_size=3, padding=1)
-        self.Conv2d_3b_1x1 = BasicConv2d(64, 80, kernel_size=1)
-        self.Conv2d_4a_3x3 = BasicConv2d(80, 192, kernel_size=3)
-        self.Mixed_5b = InceptionA(192, pool_features=32)
-        self.Mixed_5c = InceptionA(256, pool_features=64)
-        self.Mixed_5d = InceptionA(288, pool_features=64)
+        self.Conv2d_1a_3x3 = BasicConv2d(32, 3, kernel_size=3, padding=2)
+        self.upSample= nn.Upsample(scale_factor=2, mode='bilinear')
+        self.Conv2d_2a_3x3 = BasicConv2d(32, 32, kernel_size=3,padding=2)
+        self.Conv2d_2b_3x3 = BasicConv2d(64, 32, kernel_size=3, padding=1)
+        self.Conv2d_3b_1x1 = BasicConv2d(80, 64, kernel_size=1)
+        self.Conv2d_4a_3x3 = BasicConv2d(192, 80, kernel_size=3,padding=2)
+        self.Mixed_5b = InceptionA(192, pool_features=16)
+        self.Mixed_5c = InceptionA(256, pool_features=16)
+        self.Mixed_5d = InceptionA(288, pool_features=80)
         
         
         self.Mixed_6a = InceptionB(288)
@@ -89,33 +90,31 @@ class Inception3(nn.Module):
                 m.bias.data.zero_()
 
     def forward(self, x):
-        if self.transform_input:
-            x = x.clone()
-            x[:, 0] = x[:, 0] * (0.229 / 0.5) + (0.485 - 0.5) / 0.5
-            x[:, 1] = x[:, 1] * (0.224 / 0.5) + (0.456 - 0.5) / 0.5
-            x[:, 2] = x[:, 2] * (0.225 / 0.5) + (0.406 - 0.5) / 0.5
-        print(x.size())
-        x = self.Conv2d_1a_3x3(x)
-        print(x.size())
-        x = self.Conv2d_2a_3x3(x)
-        print(x.size())
-        x = self.Conv2d_2b_3x3(x)
-        print(x.size())
-        #x = F.max_pool2d(x, kernel_size=3, stride=2)
-        print(x.size())
-        x = self.Conv2d_3b_1x1(x)
-        print(x.size())
-        x = self.Conv2d_4a_3x3(x)
-        print(x.size())
-        #x = F.max_pool2d(x, kernel_size=3, stride=2)
-        print(x.size())
-        x = self.Mixed_5b(x)
-        print(x.size())
-        x = self.Mixed_5c(x)
         print(x.size())
         x = self.Mixed_5d(x)
         print(x.size())
+        x = self.Mixed_5c(x)
+        print(x.size())
+        x = self.Mixed_5b(x)
+        print(x.size())
+        #x = F.max_pool2d(x, kernel_size=3, stride=2)
+        print(x.size())
+        x = self.Conv2d_4a_3x3(x)
+        print(x.size())
+        x = self.Conv2d_3b_1x1(x)
+        print(x.size())
+        #x = F.max_pool2d(x, kernel_size=3, stride=2)
+        print(x.size())
+        x = self.Conv2d_2b_3x3(x)
+        print(x.size())
+        x = self.Conv2d_2a_3x3(x)
+        print(x.size())
+        x = self.upSample(x)
+        print(x.size())
+        x = self.Conv2d_1a_3x3(x)
+        print(x.size())
         
+                
         return (x)
 
 
@@ -123,14 +122,14 @@ class InceptionA(nn.Module):
 
     def __init__(self, in_channels, pool_features):
         super(InceptionA, self).__init__()
-        self.branch1x1 = BasicConv2d(in_channels, 64, kernel_size=1)
+        self.branch1x1 = BasicConv2d(in_channels, 48, kernel_size=1)
 
-        self.branch5x5_1 = BasicConv2d(in_channels, 48, kernel_size=1)
-        self.branch5x5_2 = BasicConv2d(48, 64, kernel_size=5, padding=2)
+        self.branch5x5_1 = BasicConv2d(in_channels, 40, kernel_size=1)
+        self.branch5x5_2 = BasicConv2d(40, 48, kernel_size=5, padding=2)
 
         self.branch3x3dbl_1 = BasicConv2d(in_channels, 64, kernel_size=1)
-        self.branch3x3dbl_2 = BasicConv2d(64, 96, kernel_size=3, padding=1)
-        self.branch3x3dbl_3 = BasicConv2d(96, 96, kernel_size=3, padding=1)
+        self.branch3x3dbl_2 = BasicConv2d(64, 80, kernel_size=3, padding=1)
+        self.branch3x3dbl_3 = BasicConv2d(80, 80, kernel_size=3, padding=1)
 
         self.branch_pool = BasicConv2d(in_channels, pool_features, kernel_size=1)
 
@@ -318,7 +317,6 @@ class BasicConv2d(nn.Module):
         x = self.bn(x)
         return F.relu(x, inplace=True)
     
-    
-model=encoder()
-x=Variable(torch.randn(1,3,32,32))
+model=decoder()
+x=Variable(torch.randn(1,288,11,11))
 y=model(x)
