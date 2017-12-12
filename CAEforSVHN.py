@@ -300,12 +300,12 @@ if __name__=='__main__':
     trainset = torchvision.datasets.SVHN(root='./SVHN', split='train',
                                             download=True, transform=transform)
     trainloader = torch.utils.data.DataLoader(trainset, batch_size=NbatchTrain,
-                                              shuffle=True, num_workers=2)
+                                              shuffle=True, num_workers=0)
     
     testset = torchvision.datasets.SVHN(root='./SVHN', split='test',
                                            download=True, transform=transform)
     testloader = torch.utils.data.DataLoader(testset, batch_size=NbatchTest,
-                                             shuffle=False, num_workers=2)
+                                             shuffle=False, num_workers=0)
     
     
     
@@ -359,10 +359,10 @@ if __name__=='__main__':
     os.makedirs(directory) 
     os.makedirs(directoryData)
     os.makedirs(directoryModel)
-    
+
     #save the model script in the data directory
     if os.name=='nt':
-        commandBash='copy "{}" "{}"'.format(__file__,directoryData)
+        commandBash='copy "{}" "{}model.py"'.format(__file__,directoryData)
     else:
         commandBash='cp {} {}'.format(__file__,directoryData)
     os.system(commandBash)
@@ -432,7 +432,7 @@ if __name__=='__main__':
         
         #save the model
         if epoch%Nsave==0:
-            torch.save(model.state_dict(),'./results/Exp{}/models/Exp{}Epoch{}-{}.pt'.format(Nexperience,Nexperience,epoch+1,Nepochs+1))
+            torch.save(model.state_dict(),'./results/Exp{}/models/Exp{}Epoch{}.pt'.format(Nexperience,Nexperience,epoch+1))
     #final save
     torch.save(model.state_dict(),'./results/Exp{}/models/Exp{}Epoch{}Final.pt'.format(Nexperience,Nexperience,epoch+1))
 
