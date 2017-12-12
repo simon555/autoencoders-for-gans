@@ -27,7 +27,7 @@ import time
 import torchvision
 import torchvision.transforms as transforms
 import argparse
-
+import inception_CAE_SVHN
 
 torch.manual_seed(1)
 
@@ -37,8 +37,8 @@ NbatchTrain=32
 NbatchTest=100
 Nplot=1
 Nsave=10
-Nexperience=100
-learningRate=0.0001
+Nexperience=1
+learningRate=0.001
 
 N1=64
 N2=N1*N1
@@ -323,9 +323,13 @@ if __name__=='__main__':
     #get the input channels
     imgForChannels=trainset[0][0]
     channels=imgForChannels.size()[0]
+    
+       
+    
 
-    model=Autoencoder(useCuda=useCuda,
-                      inputChannel=channels)   
+    model=inception_CAE_SVHN.inceptionAE()  
+    
+    
     print('model loaded')
     
     

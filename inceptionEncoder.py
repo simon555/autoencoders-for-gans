@@ -94,27 +94,27 @@ class Inception3(nn.Module):
             x[:, 0] = x[:, 0] * (0.229 / 0.5) + (0.485 - 0.5) / 0.5
             x[:, 1] = x[:, 1] * (0.224 / 0.5) + (0.456 - 0.5) / 0.5
             x[:, 2] = x[:, 2] * (0.225 / 0.5) + (0.406 - 0.5) / 0.5
-        print(x.size())
+        #print(x.size())
         x = self.Conv2d_1a_3x3(x)
-        print(x.size())
+        ##print(x.size())
         x = self.Conv2d_2a_3x3(x)
-        print(x.size())
+        #print(x.size())
         x = self.Conv2d_2b_3x3(x)
-        print(x.size())
+        #print(x.size())
         #x = F.max_pool2d(x, kernel_size=3, stride=2)
-        print(x.size())
+        #print(x.size())
         x = self.Conv2d_3b_1x1(x)
-        print(x.size())
+        #print(x.size())
         x = self.Conv2d_4a_3x3(x)
-        print(x.size())
+        #print(x.size())
         #x = F.max_pool2d(x, kernel_size=3, stride=2)
-        print(x.size())
+        #print(x.size())
         x = self.Mixed_5b(x)
-        print(x.size())
+        #print(x.size())
         x = self.Mixed_5c(x)
-        print(x.size())
+        #print(x.size())
         x = self.Mixed_5d(x)
-        print(x.size())
+        #print(x.size())
         
         return (x)
 
@@ -319,6 +319,6 @@ class BasicConv2d(nn.Module):
         return F.relu(x, inplace=True)
     
     
-model=encoder()
-x=Variable(torch.randn(1,3,32,32))
-y=model(x)
+#model=encoder()
+#x=Variable(torch.randn(1,3,32,32))
+#y=model(x)
