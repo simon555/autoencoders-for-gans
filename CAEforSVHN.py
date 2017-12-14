@@ -34,17 +34,15 @@ modelName='{}/local_models/Resnet_Modified.py'.format(os.getcwd())
 
 torch.manual_seed(1)
 
-
+#default values
 Nepochs=10000
 NbatchTrain=32
 NbatchTest=100
 Nplot=1
 Nsave=10
-Nexperience=1
+Nexperience=1 
 learningRate=0.001
 
-N1=64
-N2=N1*N1
 
 
 
@@ -67,7 +65,14 @@ for i in vars(args):
     print(line_new, end='')
     
 
-
+#custom values
+Nepochs=getattr(args,'Nepochs')
+NbatchTrain=getattr(args,'NbatchTrain')
+NbatchTest=getattr(args,'NbatchTest')
+Nplot=getattr(args,'Nplot')
+Nsave=getattr(args,'Nsave')
+Nexperience=getattr(args,'Nexperience')
+learningRate=getattr(args,'learningRate')
 
 
 
