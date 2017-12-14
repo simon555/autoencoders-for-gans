@@ -45,7 +45,7 @@ torch.manual_seed(1)
 
 
 Nepochs=10000
-NbatchTrain=32
+NbatchTrain=128
 NbatchTest=100
 Nplot=1
 Nsave=10
@@ -55,7 +55,7 @@ learningRate=0.001
 N1=64
 N2=N1*N1
 
-returnToEpoch=251
+returnToEpoch=281
 filename='./results/Exp{}/models/Exp{}Epoch{}.pt'.format(Nexperience,Nexperience,returnToEpoch)
 
 
