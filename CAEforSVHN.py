@@ -30,6 +30,8 @@ import argparse
 #from local_models import inception_CAE_SVHN as modelFactory
 from local_models import Resnet_Modified as modelFactory
 
+modelName='{}/local_models/ResnetModified.py'.format(os.getcwd())
+
 torch.manual_seed(1)
 
 
@@ -155,10 +157,10 @@ if __name__=='__main__':
     #save the model script in the data directory
     
     if os.name=='nt':
-        commandBash='copy "{}" "{}model.py"'.format(os.getcwd(),directoryData)
+        commandBash='copy "{}" "{}model.py"'.format(modelName,directoryData)
     else:
         #os.system('chmod 777 {}'.format(directoryData))
-        commandBash='cp {} {}model.py'.format(os.getcwd(),directoryData)
+        commandBash='cp {} {}model.py'.format(modelName,directoryData)
     check=os.system(commandBash)
     if not check:
         print(commandBash)
