@@ -25,11 +25,11 @@ import time
 import torchvision
 import torchvision.transforms as transforms
 import os
-import results.Exp2.data.model as mod
+import results.Exp8.data.model as mod
 
 
-Nexperience=1
-Nepoch=381
+Nexperience=8
+Nepoch=251
 
 def rescale(img):
     mi=img.min()
@@ -40,7 +40,7 @@ def rescale(img):
 
 filename='./results/Exp{}/models/Exp{}Epoch{}.pt'.format(Nexperience,Nexperience,Nepoch)
 
-the_model = mod.inceptionAE()
+the_model = mod.ModelAE()
 
 the_model.load_state_dict(torch.load(filename))
 the_model.cpu()
@@ -67,6 +67,7 @@ for i,data in enumerate(testset):
     imgOutput=outputs[0,:,:,:].cpu().data.numpy().transpose((1,2,0))
     
     #print(imgInput.mean(),' ',imgInput.std(), ' ',imgInput.max(), ' ',imgInput.min()   )
+    print('image ', i)
     pl.figure()
     pl.subplot(221)
     pl.imshow(imgInput)
@@ -86,8 +87,26 @@ for i,data in enumerate(testset):
     pl.subplot(224)
     pl.imshow(imgOutput2)
     pl.show()
-    
+
+
+
+images=Variable(testset[125][0].unsqueeze(0)) 
+outputs = the_model(images)
+
+
+imgInput=images[0,:,:,:].cpu().data.numpy().transpose((1,2,0))
+imgOutput=outputs[0,:,:,:].cpu().data.numpy().transpose((1,2,0))
+
+
 pl.plot(imgOutput[15,:,0])
 pl.plot(imgInput[15,:,0])
-    
-    
+pl.show()
+
+pl.plot(imgOutput[15,:,1])
+pl.plot(imgInput[15,:,1])
+pl.show()
+
+pl.plot(imgOutput[15,:,1])
+pl.plot(imgInput[15,:,1])
+pl.show()
+   
