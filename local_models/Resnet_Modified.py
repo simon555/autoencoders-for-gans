@@ -97,14 +97,14 @@ class ModelAE(nn.Module):
         self.Code_B2=Block(Nblocks)          
         self.Code_B3=Block(Nblocks)  
         self.Code_B4=Block(Nblocks)  
-        self.Code_B5=Block(2*Nblocks)  
-        self.Code_B6=Block(2*Nblocks)  
+        self.Code_B5=Block(Nblocks)  
+        self.Code_B6=Block(Nblocks)  
         self.Code_Conv1=nn.Conv2d(Nblocks,2*Nblocks,3,stride=1,padding=1)
 
         
         #decoding blocks
-        self.DeCode_B1=Block(2*Nblocks)  
-        self.DeCode_B2=Block(2*Nblocks)  
+        self.DeCode_B1=Block(Nblocks)  
+        self.DeCode_B2=Block(Nblocks)  
         #self.Conv_Decode1=nn.Conv2d(2*Nblocks,Nblocks,3,stride=1,padding=1) 
         self.DeCode_B3=Block(Nblocks)  
         self.DeCode_B4=Block(Nblocks)  
@@ -130,7 +130,7 @@ class ModelAE(nn.Module):
             self.DeCode_B2.cuda()
             #self.Conv_Decode1.cuda()
             self.DeCode_B3.cuda()
-            self.DeCode_B4
+            self.DeCode_B4.cuda()
             #self.Conv_Decode2.cuda()
             self.DeCode_B5.cuda()
             self.DeCode_B6.cuda()
@@ -161,7 +161,7 @@ class ModelAE(nn.Module):
         x = F.relu(x)
         
         x=self.Code_B1.forward(x)
-        #x=self.Code_B2.forward(x)       
+        x=self.Code_B2.forward(x)       
         x=self.pool(x)           
 
 
@@ -169,7 +169,7 @@ class ModelAE(nn.Module):
         x=self.Code_B4.forward(x)
         
 
-        x=self.Code_Conv1(x)        
+        #x=self.Code_Conv1(x)        
         x=self.Code_B5.forward(x)
         x=self.Code_B6.forward(x)
 
@@ -181,26 +181,24 @@ class ModelAE(nn.Module):
                
         x=self.DeCode_B1.forward(image)
         x=self.DeCode_B2.forward(x)     
-        x=self.DeCode_Conv1(x)        
-        #x=torch.cat([x,x2],dim=1)
-        #x=self.Conv_Decode1(x)
+        
+        #x=self.DeCode_Conv1(x)        
+        
         
         x=self.DeCode_B3.forward(x)
         x=self.DeCode_B4.forward(x)   
         x=self.upSample(x)        
-        #x=torch.cat([x,x1],dim=1)        
-        #x=self.Conv_Decode2(x)
-        
+              
         
         x=self.DeCode_B5.forward(x)
         x=self.DeCode_B6.forward(x)
         
         x=self.Conv_1F(x)
-        x = F.sigmoid(x)
+        x = F.relu(x)
         x=self.Conv_2F(x)
-        x = F.sigmoid(x)
+        x = F.relu(x)
         x=self.Conv_3F(x)
-        x = F.sigmoid(x)
+        x = F.relu(x)
         x=self.Conv_4F(x)
         x = F.sigmoid(x)   
 

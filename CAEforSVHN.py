@@ -30,7 +30,7 @@ import argparse
 #from local_models import inception_CAE_SVHN as modelFactory
 from local_models import Resnet_Modified as modelFactory
 
-modelName='{}/local_models/ResnetModified.py'.format(os.getcwd())
+modelName='{}/local_models/Resnet_Modified.py'.format(os.getcwd())
 
 torch.manual_seed(1)
 
@@ -80,7 +80,7 @@ if __name__=='__main__':
     def rescale(img):
         mi=img.min()
         ma=img.max()
-        return(((img-mi)/(ma-mi)-0.5)*2)
+        return(((img-mi)/(ma-mi)-0)*1)
     
        
     transform = transforms.Compose(
@@ -162,7 +162,7 @@ if __name__=='__main__':
         #os.system('chmod 777 {}'.format(directoryData))
         commandBash='cp {} {}model.py'.format(modelName,directoryData)
     check=os.system(commandBash)
-    if not check:
+    if check==1:
         print(commandBash)
         sys.exit("ERROR, model not copied")
         
