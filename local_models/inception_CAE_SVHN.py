@@ -1,11 +1,39 @@
+# -*- coding: utf-8 -*-
+"""
+Created on Tue Dec 12 14:15:51 2017
+
+@author: simon
+"""
+
+import sys
+import os
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
+
 import torch.utils.model_zoo as model_zoo
-from torch.autograd import Variable
+
+class ModelAE(nn.Module):
+    def __init__(self,
+                 useCuda=False):
+        super(ModelAE, self).__init__()
+        self.encoder=Encoder(pretrained=True)
+        self.decoder=Decoder(pretrained=False)        
+        self.useCuda=torch.cuda.is_available()
+        
+        if self.useCuda:
+            self.encoder.cuda()
+            self.decoder.cuda()
+        
+        
+        print('use CUDA : ',self.useCuda)        
+        print('model loaded')
+        
+    def forward(self,image):
+        return(self.decoder(self.encoder(image)))
+        
 
 
-__all__ = ['Inception3', 'inception_v3']
 
 
 model_urls = {
@@ -14,7 +42,7 @@ model_urls = {
 }
 
 
-def decoder(pretrained=False, **kwargs):
+def Decoder(pretrained=False, **kwargs):
     r"""Inception v3 model architecture from
     `"Rethinking the Inception Architecture for Computer Vision" <http://arxiv.org/abs/1512.00567>`_.
     Args:
@@ -23,10 +51,10 @@ def decoder(pretrained=False, **kwargs):
     if pretrained:
         if 'transform_input' not in kwargs:
             kwargs['transform_input'] = True
-        model = Inception3(**kwargs)
+        model = Inception3Decoder(**kwargs)
         model.load_state_dict(model_zoo.load_url(model_urls['inception_v3_google']))
     else:
-        model=Inception3(**kwargs)
+        model=Inception3Decoder(**kwargs)
         
     del model.Mixed_6a 
     del model.Mixed_6b 
@@ -47,19 +75,19 @@ def decoder(pretrained=False, **kwargs):
     return (model)
 
 
-class Inception3(nn.Module):
+class Inception3Decoder(nn.Module):
 
     def __init__(self, num_classes=1000, aux_logits=True, transform_input=False):
-        super(Inception3, self).__init__()
+        super(Inception3Decoder, self).__init__()
         self.aux_logits = aux_logits
         self.transform_input = transform_input
-        self.finalConv4=FinalConv(3,3,kernel_size=3,padding=1)
+        #self.finalConv4=FinalConv(3,3,kernel_size=3,padding=1)
         
         self.Conv2d_1a_3x3 = BasicConv2d(32, 3, kernel_size=3, padding=2)
         
-        self.finalConv1=FinalConv(32,32,kernel_size=3,padding=1)
-        self.finalConv2=FinalConv(32,32,kernel_size=3,padding=1)
-        self.finalConv3=FinalConv(32,32,kernel_size=3,padding=1)
+        #self.finalConv1=FinalConv(32,32,kernel_size=3,padding=1)
+        #self.finalConv2=FinalConv(32,32,kernel_size=3,padding=1)
+        #self.finalConv3=FinalConv(32,32,kernel_size=3,padding=1)
         
         
         
@@ -121,11 +149,11 @@ class Inception3(nn.Module):
         #print(x.size())
         x = self.upSample(x)
         #print(x.size())
-        x=self.finalConv1(x)
-        x=self.finalConv2(x)
-        x=self.finalConv3(x)
+        #x=self.finalConv1(x)
+        #x=self.finalConv2(x)
+        #x=self.finalConv3(x)
         x = self.Conv2d_1a_3x3(x)
-        x=self.finalConv4(x)
+        #x=self.finalConv4(x)
 
         #print(x.size())
     
@@ -344,7 +372,152 @@ class FinalConv(nn.Module):
         x = self.conv(x)
         x = self.bn(x)
         return F.relu(x, inplace=True)
-    
-model=decoder()
-x=Variable(torch.randn(1,288,11,11))
-y=model(x)
+ 
+
+
+
+
+def Encoder(pretrained=False, **kwargs):
+    r"""Inception v3 model architecture from
+    `"Rethinking the Inception Architecture for Computer Vision" <http://arxiv.org/abs/1512.00567>`_.
+    Args:
+        pretrained (bool): If True, returns a model pre-trained on ImageNet
+    """
+    if pretrained:
+        if 'transform_input' not in kwargs:
+            kwargs['transform_input'] = True
+        model = Inception3Encoder(**kwargs)
+        model.load_state_dict(model_zoo.load_url(model_urls['inception_v3_google']))
+    else:
+        model=Inception3Encoder(**kwargs)
+        
+    del model.Mixed_6a 
+    del model.Mixed_6b 
+    del model.Mixed_6c 
+    del model.Mixed_6d
+    del model.Mixed_6e 
+    try:
+        del model.AuxLogits 
+    except:
+        print('no aux logits to delete')
+        
+    del model.Mixed_7a 
+    del model.Mixed_7b 
+    del model.Mixed_7c
+    del model.fc 
+        
+        
+    return (model)
+
+
+class Inception3Encoder(nn.Module):
+
+    def __init__(self, num_classes=1000, aux_logits=True, transform_input=False):
+        super(Inception3Encoder, self).__init__()
+        self.aux_logits = aux_logits
+        self.transform_input = transform_input
+        self.Conv2d_1a_3x3 = BasicConv2d(3, 32, kernel_size=3, stride=2)
+        self.Conv2d_2a_3x3 = BasicConv2d(32, 32, kernel_size=3)
+        self.Conv2d_2b_3x3 = BasicConv2d(32, 64, kernel_size=3, padding=1)
+        self.Conv2d_3b_1x1 = BasicConv2d(64, 80, kernel_size=1)
+        self.Conv2d_4a_3x3 = BasicConv2d(80, 192, kernel_size=3)
+        self.Mixed_5b = InceptionAEncoder(192, pool_features=32)
+        self.Mixed_5c = InceptionAEncoder(256, pool_features=64)
+        self.Mixed_5d = InceptionAEncoder(288, pool_features=64)
+        
+        
+        self.Mixed_6a = InceptionB(288)
+        self.Mixed_6b = InceptionC(768, channels_7x7=128)
+        self.Mixed_6c = InceptionC(768, channels_7x7=160)
+        self.Mixed_6d = InceptionC(768, channels_7x7=160)
+        self.Mixed_6e = InceptionC(768, channels_7x7=192)
+        if aux_logits:
+            self.AuxLogits = InceptionAux(768, num_classes)
+        self.Mixed_7a = InceptionD(768)
+        self.Mixed_7b = InceptionE(1280)
+        self.Mixed_7c = InceptionE(2048)
+        self.fc = nn.Linear(2048, num_classes)
+
+        
+
+        for m in self.modules():
+            if isinstance(m, nn.Conv2d) or isinstance(m, nn.Linear):
+                import scipy.stats as stats
+                stddev = m.stddev if hasattr(m, 'stddev') else 0.1
+                X = stats.truncnorm(-2, 2, scale=stddev)
+                values = torch.Tensor(X.rvs(m.weight.data.numel()))
+                values = values.view(m.weight.data.size())
+                m.weight.data.copy_(values)
+            elif isinstance(m, nn.BatchNorm2d):
+                m.weight.data.fill_(1)
+                m.bias.data.zero_()
+
+    def forward(self, x):
+        if self.transform_input:
+            x = x.clone()
+            x[:, 0] = x[:, 0] * (0.229 / 0.5) + (0.485 - 0.5) / 0.5
+            x[:, 1] = x[:, 1] * (0.224 / 0.5) + (0.456 - 0.5) / 0.5
+            x[:, 2] = x[:, 2] * (0.225 / 0.5) + (0.406 - 0.5) / 0.5
+        #print(x.size())
+        x = self.Conv2d_1a_3x3(x)
+        ##print(x.size())
+        x = self.Conv2d_2a_3x3(x)
+        #print(x.size())
+        x = self.Conv2d_2b_3x3(x)
+        #print(x.size())
+        #x = F.max_pool2d(x, kernel_size=3, stride=2)
+        #print(x.size())
+        x = self.Conv2d_3b_1x1(x)
+        #print(x.size())
+        x = self.Conv2d_4a_3x3(x)
+        #print(x.size())
+        #x = F.max_pool2d(x, kernel_size=3, stride=2)
+        #print(x.size())
+        x = self.Mixed_5b(x)
+        #print(x.size())
+        x = self.Mixed_5c(x)
+        #print(x.size())
+        x = self.Mixed_5d(x)
+        #print(x.size())
+        
+        return (x)
+
+
+class InceptionAEncoder(nn.Module):
+
+    def __init__(self, in_channels, pool_features):
+        super(InceptionAEncoder, self).__init__()
+        self.branch1x1 = BasicConv2d(in_channels, 64, kernel_size=1)
+
+        self.branch5x5_1 = BasicConv2d(in_channels, 48, kernel_size=1)
+        self.branch5x5_2 = BasicConv2d(48, 64, kernel_size=5, padding=2)
+
+        self.branch3x3dbl_1 = BasicConv2d(in_channels, 64, kernel_size=1)
+        self.branch3x3dbl_2 = BasicConv2d(64, 96, kernel_size=3, padding=1)
+        self.branch3x3dbl_3 = BasicConv2d(96, 96, kernel_size=3, padding=1)
+
+        self.branch_pool = BasicConv2d(in_channels, pool_features, kernel_size=1)
+
+    def forward(self, x):
+        branch1x1 = self.branch1x1(x)
+
+        branch5x5 = self.branch5x5_1(x)
+        branch5x5 = self.branch5x5_2(branch5x5)
+
+        branch3x3dbl = self.branch3x3dbl_1(x)
+        branch3x3dbl = self.branch3x3dbl_2(branch3x3dbl)
+        branch3x3dbl = self.branch3x3dbl_3(branch3x3dbl)
+
+        branch_pool = F.avg_pool2d(x, kernel_size=3, stride=1, padding=1)
+        branch_pool = self.branch_pool(branch_pool)
+
+        outputs = [branch1x1, branch5x5, branch3x3dbl, branch_pool]
+        return torch.cat(outputs, 1)
+
+
+
+
+
+        
+        
+        

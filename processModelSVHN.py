@@ -25,11 +25,11 @@ import time
 import torchvision
 import torchvision.transforms as transforms
 import os
-import CAEforSVHN 
+import results.Exp2.data.model as mod
 
 
-Nexperience=106
-Nepoch=501
+Nexperience=1
+Nepoch=381
 
 def rescale(img):
     mi=img.min()
@@ -38,9 +38,9 @@ def rescale(img):
     
     
 
-filename='./results/Exp{}/models/Exp{}Epoch{}-10001.pt'.format(Nexperience,Nexperience,Nepoch)
+filename='./results/Exp{}/models/Exp{}Epoch{}.pt'.format(Nexperience,Nexperience,Nepoch)
 
-the_model = CAEforSVHN.Autoencoder(inputChannel=3)
+the_model = mod.inceptionAE()
 
 the_model.load_state_dict(torch.load(filename))
 the_model.cpu()

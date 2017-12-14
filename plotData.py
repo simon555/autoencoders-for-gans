@@ -8,7 +8,9 @@ Created on Sun Dec 10 16:41:22 2017
 import numpy
 import matplotlib.pyplot as pl
 
-path="C://Users//simon//Desktop//MILA//autoencoders-for-gans//results//Exp106//data//data.txt"
+Nexp=2
+
+path="C://Users//simon//Desktop//MILA//autoencoders-for-gans//results//Exp{}//data//data.txt".format(Nexp)
 
 f=open(path,'r')
 trainList=[]
