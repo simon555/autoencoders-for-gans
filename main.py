@@ -30,7 +30,8 @@ import argparse
 #from local_models import inception_CAE_SVHN as modelFactory
 from local_models import Resnet_Modified as modelFactory
 
-modelName='{}/local_models/Resnet_Modified.py'.format(os.getcwd())
+
+
 
 torch.manual_seed(1)
 
@@ -42,6 +43,7 @@ Nplot=1
 Nsave=10
 Nexperience=1 
 learningRate=0.001
+idxModel='Resnet_Modified'
 
 
 
@@ -55,6 +57,7 @@ parser.add_argument('--Nplot', default=Nplot,type=int)
 parser.add_argument('--Nsave', default=Nsave,type=int)
 parser.add_argument('--Nexperience', default=Nexperience,type=int)
 parser.add_argument('--learningRate', default=learningRate,type=float)
+parser.add_argument('--idxModel', default=idxModel,type=str)
 
 args = parser.parse_args()
 
@@ -73,6 +76,14 @@ Nplot=getattr(args,'Nplot')
 Nsave=getattr(args,'Nsave')
 Nexperience=getattr(args,'Nexperience')
 learningRate=getattr(args,'learningRate')
+idxModel=getattr(args,'idxModel')
+
+
+if os.name=='nt':
+    modelName='{}\\local_models\\{}.py'.format(os.getcwd(),idxModel)
+
+else:
+    modelName='{}/local_models/{}.py'.format(os.getcwd(),idxModel)
 
 
 
@@ -91,12 +102,12 @@ if __name__=='__main__':
     transform = transforms.Compose(
         [transforms.ToTensor(),transforms.Lambda(rescale)])
                                 
-    trainset = torchvision.datasets.SVHN(root='./SVHN', split='train',
+    trainset = torchvision.datasets.SVHN(root='./datasets/SVHN', split='train',
                                             download=True, transform=transform)
     trainloader = torch.utils.data.DataLoader(trainset, batch_size=NbatchTrain,
                                               shuffle=True, num_workers=0)
     
-    testset = torchvision.datasets.SVHN(root='./SVHN', split='test',
+    testset = torchvision.datasets.SVHN(root='./datasets/SVHN', split='test',
                                            download=True, transform=transform)
     testloader = torch.utils.data.DataLoader(testset, batch_size=NbatchTest,
                                              shuffle=False, num_workers=0)
@@ -174,20 +185,34 @@ if __name__=='__main__':
     
     
     
-    filename="./results/Exp{}/data/data.txt".format(Nexperience)
+    filename=directoryData+"data.txt"
+    fileInfo=directoryData+"info.txt"
+    
     index=2
     while(os.path.exists(filename)):
         print("file aldready existing, using a new path ",end=" ")
-        filename="./results/Exp{}/data/data-{}.txt".format(Nexperience,index)
+        filename=directoryData+"data-{}.txt".format(index)
         print(filename)
+        index+=1
+       
+    index=2
+    while(os.path.exists(fileInfo)):
+        print("file aldready existing, using a new path ",end=" ")
+        fileInfo=directoryData+"info-{}.txt".format(index)
+        print(fileInfo)
         index+=1
         
     print('saving results at : ',filename)
-    f= open(filename,"a")
+    
+    f= open(fileInfo,"a")
     f.write("experience done on : {} at {}  \n".format(time.strftime("%d/%m/%Y"),time.strftime("%H:%M:%S")))
     f.write(descriptor)
     f.write("epoch,trainLoss,testLoss  \n")
     f.close()
+    
+    f= open(filename,"a")
+    f.close()
+
     
     
     print('beginning of the training')
