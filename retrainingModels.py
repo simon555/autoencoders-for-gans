@@ -45,7 +45,7 @@ torch.manual_seed(1)
 
 
 Nepochs=10000
-NbatchTrain=128
+NbatchTrain=50
 NbatchTest=100
 Nplot=1
 Nsave=10
@@ -55,7 +55,7 @@ learningRate=0.001
 N1=64
 N2=N1*N1
 
-returnToEpoch=281
+returnToEpoch=251
 filename='./results/Exp{}/models/Exp{}Epoch{}.pt'.format(Nexperience,Nexperience,returnToEpoch)
 
 
@@ -247,9 +247,9 @@ if __name__=='__main__':
         
         #save the model
         if epoch%Nsave==0:
-            torch.save(model.state_dict(),'./results/Exp{}/models/Exp{}Epoch{}.pt'.format(Nexperience,Nexperience,epoch+1))
+            torch.save(model.state_dict(),directoryModel+'Exp{}Epoch{}.pt'.format(Nexperience,epoch+1))
     #final save
-    torch.save(model.state_dict(),'./results/Exp{}/models/Exp{}Epoch{}Final.pt'.format(Nexperience,Nexperience,epoch+1))
+    torch.save(model.state_dict(),directoryModel+'Exp{}Epoch{}Final.pt'.format(Nexperience,epoch+1))
 
     
     

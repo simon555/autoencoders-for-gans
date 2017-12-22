@@ -28,8 +28,8 @@ import os
 import results.Exp8.data.model as mod
 
 
-Nexperience=8
-Nepoch=251
+Nexperience=13
+Nepoch=591
 
 def rescale(img):
     mi=img.min()
@@ -38,7 +38,7 @@ def rescale(img):
     
     
 
-filename='./results/Exp{}/models/Exp{}Epoch{}.pt'.format(Nexperience,Nexperience,Nepoch)
+filename="C://Users//simon//Desktop//MILA//autoencoders-for-gans//results//Exp13//models//Exp13Epoch591.pt"
 
 the_model = mod.ModelAE()
 
@@ -48,13 +48,13 @@ the_model.cpu()
 transform = transforms.Compose(
         [transforms.ToTensor()])
     
-testset = torchvision.datasets.SVHN(root='./SVHN', split='test',
+testset = torchvision.datasets.SVHN(root='./SVHN', split='train',
                                            download=True, transform=transform)
 
 transform = transforms.Compose(
         [transforms.ToTensor(),transforms.Lambda(rescale)])
     
-transformed=torchvision.datasets.SVHN(root='./SVHN', split='test',
+transformed=torchvision.datasets.SVHN(root='./SVHN', split='train',
                                            download=True, transform=transform)
     
     
@@ -69,11 +69,6 @@ for i,data in enumerate(testset):
     #print(imgInput.mean(),' ',imgInput.std(), ' ',imgInput.max(), ' ',imgInput.min()   )
     print('image ', i)
     pl.figure()
-    pl.subplot(221)
-    pl.imshow(imgInput)
-    pl.subplot(222)
-    pl.imshow(imgOutput)
-    
     
     images= transformed[i][0]
     images=Variable(images.unsqueeze(0))
@@ -82,31 +77,45 @@ for i,data in enumerate(testset):
     imgInput2=images[0,:,:,:].cpu().data.numpy().transpose((1,2,0))
     imgOutput2=outputs[0,:,:,:].cpu().data.numpy().transpose((1,2,0))
     
-    pl.subplot(223)
+    pl.subplot(131)
     pl.imshow(imgInput2)
-    pl.subplot(224)
+    pl.title('original image')
+    pl.subplot(132)
     pl.imshow(imgOutput2)
+    pl.title("reconstructed image")
+    
+    error=np.square(np.subtract(imgInput2, imgOutput2)).mean(axis=2)
+    pl.subplot(133)
+    pl.imshow(error)
+    pl.title("error field")
+    
+    pl.colorbar()
+    pl.legend()
     pl.show()
 
 
 
-images=Variable(testset[125][0].unsqueeze(0)) 
+images=Variable(transformed[8][0].unsqueeze(0)) 
 outputs = the_model(images)
 
 
 imgInput=images[0,:,:,:].cpu().data.numpy().transpose((1,2,0))
 imgOutput=outputs[0,:,:,:].cpu().data.numpy().transpose((1,2,0))
 
+for i in range(32):
+    pl.figure()
+    pl.subplot(131)
+    pl.plot(imgOutput[i,:,0],label="reconstructed")
+    pl.plot(imgInput[i,:,0],label="original")
+    pl.title('slice {}'.format(i))
 
-pl.plot(imgOutput[15,:,0])
-pl.plot(imgInput[15,:,0])
-pl.show()
-
-pl.plot(imgOutput[15,:,1])
-pl.plot(imgInput[15,:,1])
-pl.show()
-
-pl.plot(imgOutput[15,:,1])
-pl.plot(imgInput[15,:,1])
-pl.show()
+    pl.subplot(132)
+    pl.plot(imgOutput[i,:,1],label="reconstructed")
+    pl.plot(imgInput[i,:,1],label="original")
+    
+    pl.subplot(133)
+    pl.plot(imgOutput[i,:,2],label="reconstructed")
+    pl.plot(imgInput[i,:,2],label="original")
+    pl.legend()
+    pl.show()
    
