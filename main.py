@@ -37,14 +37,14 @@ torch.manual_seed(1)
 
 #default values
 Nepochs=10000
-NbatchTrain=32
+NbatchTrain=128
 NbatchTest=100
 Nplot=1
 Nsave=10
 Nexperience=1 
 learningRate=0.001
 idxModel='Resnet_Modified'
-
+choiceLoss='L1Loss'
 
 
 
@@ -58,6 +58,9 @@ parser.add_argument('--Nsave', default=Nsave,type=int)
 parser.add_argument('--Nexperience', default=Nexperience,type=int)
 parser.add_argument('--learningRate', default=learningRate,type=float)
 parser.add_argument('--idxModel', default=idxModel,type=str)
+parser.add_argument('--choiceLoss', default=choiceLoss,type=str)
+
+
 
 args = parser.parse_args()
 
@@ -77,6 +80,7 @@ Nsave=getattr(args,'Nsave')
 Nexperience=getattr(args,'Nexperience')
 learningRate=getattr(args,'learningRate')
 idxModel=getattr(args,'idxModel')
+choiceLoss==getattr(args,'choiceLoss')
 
 
 if os.name=='nt':
@@ -84,6 +88,16 @@ if os.name=='nt':
 
 else:
     modelName='{}/local_models/{}.py'.format(os.getcwd(),idxModel)
+
+
+
+
+if choiceLoss=='L1Loss':
+    criterion=torch.nn.L1Loss().cuda()    
+    
+elif choiceLoss=='MSELoss':
+    criterion=torch.nn.MSELoss().cuda()    
+
 
 
 
@@ -142,14 +156,13 @@ if __name__=='__main__':
     
     
     #defining optimizer
-    criterion=torch.nn.MSELoss().cuda()    
     #optimizer = optim.SGD(model.parameters(), lr=0.001, momentum=0.9)
     #optimizer=optim.Adadelta(model.parameters())
     optimizer=optim.Adam(model.parameters(), lr=learningRate)
 
 
     
-    directory='{}/results/Exp{}/'.format(os.getcwd(),Nexperience)
+    directory='{}/results/{}_Exp{}/'.format(os.getcwd(),idxModel,Nexperience)
     
     if not os.path.exists(directory):
         print('new directory : ',directory)
@@ -158,7 +171,7 @@ if __name__=='__main__':
         while(os.path.exists(directory)):
             print('directory already exists : ',directory)
             Nexperience+=1
-            directory='{}/results/Exp{}/'.format(os.getcwd(),Nexperience)
+            directory='{}/results/{}Exp{}/'.format(os.getcwd(),idxModel,Nexperience)
         print('new directory : ',directory)
             
     directoryData=directory+'data/'
