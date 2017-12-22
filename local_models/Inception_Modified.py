@@ -17,7 +17,7 @@ class ModelAE(nn.Module):
     def __init__(self,
                  useCuda=False):
         super(ModelAE, self).__init__()
-        self.encoder=Encoder(pretrained=True)
+        self.encoder=Encoder(pretrained=False)
         self.decoder=Decoder(pretrained=False)        
         self.useCuda=torch.cuda.is_available()
         
@@ -83,7 +83,7 @@ class Inception3Decoder(nn.Module):
         self.transform_input = transform_input
         #self.finalConv4=FinalConv(3,3,kernel_size=3,padding=1)
         
-        self.Conv2d_1a_3x3 = BasicConv2d(32, 3, kernel_size=3, padding=2)
+        self.Conv2d_1a_3x3 = FinalConv(32, 3, kernel_size=3, padding=2)
         
         #self.finalConv1=FinalConv(32,32,kernel_size=3,padding=1)
         #self.finalConv2=FinalConv(32,32,kernel_size=3,padding=1)
@@ -353,7 +353,7 @@ class BasicConv2d(nn.Module):
 
     def __init__(self, in_channels, out_channels, **kwargs):
         super(BasicConv2d, self).__init__()
-        self.conv = nn.Conv2d(in_channels, out_channels, bias=False, **kwargs)
+        self.conv = nn.Conv2d(in_channels, out_channels, bias=True, **kwargs)
         self.bn = nn.BatchNorm2d(out_channels, eps=0.001)
 
     def forward(self, x):
@@ -371,7 +371,7 @@ class FinalConv(nn.Module):
     def forward(self, x):
         x = self.conv(x)
         x = self.bn(x)
-        return F.relu(x, inplace=True)
+        return F.sigmoid(x, inplace=True)
  
 
 
