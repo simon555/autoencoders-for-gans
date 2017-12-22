@@ -38,7 +38,7 @@ def rescale(img):
     
     
 
-filename="C://Users//simon//Desktop//MILA//autoencoders-for-gans//results//Exp13//models//Exp13Epoch591.pt"
+filename="../results/Exp{}/models/Exp13Epoch{}.pt".format(Nexperience,Nepoch)
 
 the_model = mod.ModelAE()
 
@@ -48,13 +48,13 @@ the_model.cpu()
 transform = transforms.Compose(
         [transforms.ToTensor()])
     
-testset = torchvision.datasets.SVHN(root='./SVHN', split='train',
+testset = torchvision.datasets.SVHN(root='../datasets/SVHN', split='train',
                                            download=True, transform=transform)
 
 transform = transforms.Compose(
         [transforms.ToTensor(),transforms.Lambda(rescale)])
     
-transformed=torchvision.datasets.SVHN(root='./SVHN', split='train',
+transformed=torchvision.datasets.SVHN(root='../datasets/SVHN', split='train',
                                            download=True, transform=transform)
     
     
@@ -94,28 +94,3 @@ for i,data in enumerate(testset):
     pl.show()
 
 
-
-images=Variable(transformed[8][0].unsqueeze(0)) 
-outputs = the_model(images)
-
-
-imgInput=images[0,:,:,:].cpu().data.numpy().transpose((1,2,0))
-imgOutput=outputs[0,:,:,:].cpu().data.numpy().transpose((1,2,0))
-
-for i in range(32):
-    pl.figure()
-    pl.subplot(131)
-    pl.plot(imgOutput[i,:,0],label="reconstructed")
-    pl.plot(imgInput[i,:,0],label="original")
-    pl.title('slice {}'.format(i))
-
-    pl.subplot(132)
-    pl.plot(imgOutput[i,:,1],label="reconstructed")
-    pl.plot(imgInput[i,:,1],label="original")
-    
-    pl.subplot(133)
-    pl.plot(imgOutput[i,:,2],label="reconstructed")
-    pl.plot(imgInput[i,:,2],label="original")
-    pl.legend()
-    pl.show()
-   
