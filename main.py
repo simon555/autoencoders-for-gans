@@ -37,13 +37,13 @@ torch.manual_seed(1)
 
 #default values
 Nepochs=10000
-NbatchTrain=128
+NbatchTrain=16
 NbatchTest=100
 Nplot=1
 Nsave=10
 Nexperience=1 
 learningRate=0.001
-idxModel='Resnet_Modified'
+idxModel='Inception_Modified'
 choiceLoss='L1Loss'
 
 
