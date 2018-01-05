@@ -38,7 +38,8 @@ def rescale(img):
     
     
 
-filename="../results/Exp{}/models/Exp13Epoch{}.pt".format(Nexperience,Nepoch)
+#filename="../results/Exp{}/models/Exp13Epoch{}.pt".format(Nexperience,Nepoch)
+filename = sys.argv[1]
 
 the_model = mod.ModelAE()
 
@@ -81,9 +82,10 @@ for i,data in enumerate(testset):
     pl.imshow(imgInput2)
     pl.title('original image')
     pl.subplot(132)
-    pl.imshow(imgOutput2)
+    #pl.imshow(imgOutput2)
     pl.title("reconstructed image")
-    
+    pl.savefig(imgInput2,'derp.png')
+
     error=np.square(np.subtract(imgInput2, imgOutput2)).mean(axis=2)
     pl.subplot(133)
     pl.imshow(error)

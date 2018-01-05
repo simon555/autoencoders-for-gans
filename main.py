@@ -7,9 +7,18 @@ Created on Tue Oct 24 15:13:14 2017
 @author: sebbaghs
 """
 
+from __future__ import print_function
+
 
 import sys
 import os
+
+use_different_pytorch = False
+
+import sys
+
+if use_different_pytorch:
+    sys.path.insert(0, '/u/lambalex/.local/lib/python2.7/site-packages/torch-0.2.0+4af66c4-py2.7-linux-x86_64.egg')
 
 currentDirectory = os.getcwd()
 if not currentDirectory in sys.path:
@@ -26,27 +35,24 @@ import torch.optim as optim
 import time
 import torchvision
 import torchvision.transforms as transforms
+from torchvision.utils import save_image
 import argparse
 #from local_models import inception_CAE_SVHN as modelFactory
+import local_models
 from local_models import Resnet_Modified as modelFactory
-
-
-
 
 torch.manual_seed(1)
 
 #default values
 Nepochs=10000
-NbatchTrain=16
-NbatchTest=100
+NbatchTrain=128
+NbatchTest=128
 Nplot=1
 Nsave=10
 Nexperience=1 
 learningRate=0.001
 idxModel='Inception_Modified'
 choiceLoss='L1Loss'
-
-
 
 
 parser=argparse.ArgumentParser()
@@ -68,8 +74,7 @@ descriptor=''
 for i in vars(args):
     line_new = '{:>12}  {:>12} \n'.format(i, getattr(args,i))
     descriptor+=line_new
-    print(line_new, end='')
-    
+    print(line_new)
 
 #custom values
 Nepochs=getattr(args,'Nepochs')
@@ -124,7 +129,7 @@ if __name__=='__main__':
     testset = torchvision.datasets.SVHN(root='./datasets/SVHN', split='test',
                                            download=True, transform=transform)
     testloader = torch.utils.data.DataLoader(testset, batch_size=NbatchTest,
-                                             shuffle=False, num_workers=0)
+                                             shuffle=True, num_workers=0)
     
     
     
@@ -268,17 +273,21 @@ if __name__=='__main__':
         #save the data
         totalLoss/=len(trainloader)
         print("End of epoch ",epoch+1," error on training set ",totalLoss ," error on test ", testLoss)
-           
+
         f= open(filename,"a")
         f.write("{},{},{}  \n".format(epoch+1,totalLoss,testLoss))
         f.close()
         
+        print(images.size(), outputs.size())
+
+        save_image(images.data, 'real.png')
+        save_image(outputs.data, 'rec.png')
+
         #save the model
         if epoch%Nsave==0:
-            torch.save(model.state_dict(),'./results/Exp{}/models/Exp{}Epoch{}.pt'.format(Nexperience,Nexperience,epoch+1))
+            torch.save(model.state_dict(),'./results/{}Exp{}/models/Exp{}Epoch{}.pt'.format(idxModel,Nexperience,Nexperience,epoch+1))
     #final save
-    torch.save(model.state_dict(),'./results/Exp{}/models/Exp{}Epoch{}Final.pt'.format(Nexperience,Nexperience,epoch+1))
-
+    torch.save(model.state_dict(),'./results/{}Exp{}/models/Exp{}Epoch{}Final.pt'.format(idxModel,Nexperience, Nexperience,epoch+1))
     
     
     
