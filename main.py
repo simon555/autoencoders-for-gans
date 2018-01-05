@@ -13,7 +13,7 @@ from __future__ import print_function
 import sys
 import os
 
-use_different_pytorch = False
+use_different_pytorch = True
 
 import sys
 
@@ -120,18 +120,30 @@ if __name__=='__main__':
        
     transform = transforms.Compose(
         [transforms.ToTensor(),transforms.Lambda(rescale)])
-                                
-    trainset = torchvision.datasets.SVHN(root='./datasets/SVHN', split='train',
+    
+    dataset = "cifar"
+    #dataset = "svhn"
+
+    if dataset == "svhn":
+        trainset = torchvision.datasets.SVHN(root='./datasets/SVHN', split='train',
                                             download=True, transform=transform)
-    trainloader = torch.utils.data.DataLoader(trainset, batch_size=NbatchTrain,
+        trainloader = torch.utils.data.DataLoader(trainset, batch_size=NbatchTrain,
                                               shuffle=True, num_workers=0)
     
-    testset = torchvision.datasets.SVHN(root='./datasets/SVHN', split='test',
+        testset = torchvision.datasets.SVHN(root='./datasets/SVHN', split='test',
                                            download=True, transform=transform)
-    testloader = torch.utils.data.DataLoader(testset, batch_size=NbatchTest,
-                                             shuffle=True, num_workers=0)
-    
-    
+        testloader = torch.utils.data.DataLoader(testset, batch_size=NbatchTest,
+                                             shuffle=True, num_workers=0,drop_last=True)
+    elif dataset == "cifar":
+        trainset = torchvision.datasets.CIFAR10(root='./datasets/CIFAR', train=True,
+                                            download=True, transform=transform)
+        trainloader = torch.utils.data.DataLoader(trainset, batch_size=NbatchTrain,
+                                              shuffle=True, num_workers=0)
+
+        testset = torchvision.datasets.CIFAR10(root='./datasets/CIFAR', train=False,
+                                           download=True, transform=transform)
+        testloader = torch.utils.data.DataLoader(testset, batch_size=NbatchTest,
+                                             shuffle=True, num_workers=0,drop_last=True)
     
     print("data loadeid")
     TotalTrain=len(trainloader)*NbatchTrain
