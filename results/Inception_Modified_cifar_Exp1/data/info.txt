@@ -1,0 +1,12 @@
+experience done on : 08/01/2018 at 12:14:28  
+       Nplot             1 
+ Nexperience             1 
+     dataset         cifar 
+  choiceLoss        L1Loss 
+  NbatchTest           128 
+learningRate         0.001 
+    idxModel  Inception_Modified 
+     Nepochs         10000 
+       Nsave            10 
+ NbatchTrain           128 
+epoch,trainLoss,testLoss  

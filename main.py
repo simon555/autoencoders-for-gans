@@ -53,7 +53,7 @@ Nexperience=1
 learningRate=0.001
 idxModel='Inception_Modified'
 choiceLoss='L1Loss'
-
+dataset='cifar'
 
 parser=argparse.ArgumentParser()
 parser.add_argument('--Nepochs', default=Nepochs,type=int)
@@ -65,7 +65,7 @@ parser.add_argument('--Nexperience', default=Nexperience,type=int)
 parser.add_argument('--learningRate', default=learningRate,type=float)
 parser.add_argument('--idxModel', default=idxModel,type=str)
 parser.add_argument('--choiceLoss', default=choiceLoss,type=str)
-
+parser.add_argument('--dataset', default=dataset,type=str) 
 
 
 args = parser.parse_args()
@@ -121,8 +121,7 @@ if __name__=='__main__':
     transform = transforms.Compose(
         [transforms.ToTensor(),transforms.Lambda(rescale)])
     
-    dataset = "cifar"
-    #dataset = "svhn"
+    
 
     if dataset == "svhn":
         trainset = torchvision.datasets.SVHN(root='./datasets/SVHN', split='train',
@@ -145,7 +144,7 @@ if __name__=='__main__':
         testloader = torch.utils.data.DataLoader(testset, batch_size=NbatchTest,
                                              shuffle=True, num_workers=0,drop_last=True)
     
-    print("data loadeid")
+    print("data loaded")
     TotalTrain=len(trainloader)*NbatchTrain
     TotalTest=len(testloader)*NbatchTest
     print('number of images in training set : ',TotalTrain)
@@ -179,7 +178,7 @@ if __name__=='__main__':
 
 
     
-    directory='{}/results/{}_Exp{}/'.format(os.getcwd(),idxModel,Nexperience)
+    directory='{}/results/{}_{}_Exp{}/'.format(os.getcwd(),idxModel,dataset,Nexperience)
     
     if not os.path.exists(directory):
         print('new directory : ',directory)
@@ -188,7 +187,7 @@ if __name__=='__main__':
         while(os.path.exists(directory)):
             print('directory already exists : ',directory)
             Nexperience+=1
-            directory='{}/results/{}Exp{}/'.format(os.getcwd(),idxModel,Nexperience)
+            directory='{}/results/{}_{}_Exp{}/'.format(os.getcwd(),idxModel,dataset,Nexperience)
         print('new directory : ',directory)
             
     directoryData=directory+'data/'
@@ -297,9 +296,9 @@ if __name__=='__main__':
 
         #save the model
         if epoch%Nsave==0:
-            torch.save(model.state_dict(),'./results/{}Exp{}/models/Exp{}Epoch{}.pt'.format(idxModel,Nexperience,Nexperience,epoch+1))
+            torch.save(model.state_dict(),directoryModel+'/Epoch{}.pt'.format(epoch+1))
     #final save
-    torch.save(model.state_dict(),'./results/{}Exp{}/models/Exp{}Epoch{}Final.pt'.format(idxModel,Nexperience, Nexperience,epoch+1))
+    torch.save(model.state_dict(),directoryModel+'Epoch{}Final.pt'.format(epoch+1))
     
     
     
