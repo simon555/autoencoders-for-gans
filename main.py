@@ -53,7 +53,7 @@ Nexperience=1
 learningRate=0.001
 idxModel='Inception_Modified'
 choiceLoss='L1Loss'
-dataset='cifar'
+dataset='svhn'
 
 parser=argparse.ArgumentParser()
 parser.add_argument('--Nepochs', default=Nepochs,type=int)
