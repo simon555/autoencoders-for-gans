@@ -25,7 +25,6 @@ import time
 import torchvision
 import torchvision.transforms as transforms
 import os
-import results.Exp8.data.model as mod
 
 
 Nexperience=13
@@ -39,7 +38,13 @@ def rescale(img):
     
 
 #filename="../results/Exp{}/models/Exp13Epoch{}.pt".format(Nexperience,Nepoch)
-filename = sys.argv[1]
+    
+fileDirectory = "../results/Inception_Modified1/"
+
+sys.path.insert(0,fileDirectory)
+filename=fileDirectory+'Epoch91.pt'
+
+import model as mod
 
 the_model = mod.ModelAE()
 
