@@ -162,9 +162,9 @@ if __name__=='__main__':
     
     if idxModel=='Inception_Modified':
         from local_models import Inception_Modified as modelFactory
-    else if idxModel=='Resnet_Modified':
+    elif idxModel=='Resnet_Modified':
         from local_models import Resnet_Modified as modelFactory
-    else if idxModel=='Unet_Modified':
+    elif idxModel=='Unet_Modified':
         from local_models import Unet_Modified as modelFactory
 
     
