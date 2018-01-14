@@ -39,7 +39,8 @@ from torchvision.utils import save_image
 import argparse
 #from local_models import inception_CAE_SVHN as modelFactory
 import local_models
-from local_models import Resnet_Modified as modelFactory
+
+
 
 torch.manual_seed(1)
 
@@ -53,7 +54,7 @@ Nexperience=1
 learningRate=0.001
 idxModel='Inception_Modified'
 choiceLoss='L1Loss'
-dataset='cifar'
+dataset='svhn'
 
 parser=argparse.ArgumentParser()
 parser.add_argument('--Nepochs', default=Nepochs,type=int)
@@ -159,7 +160,13 @@ if __name__=='__main__':
     imgForChannels=trainset[0][0]
     channels=imgForChannels.size()[0]
     
-       
+    if idxModel=='Inception_Modified':
+        from local_models import Inception_Modified as modelFactory
+    else if idxModel=='Resnet_Modified':
+        from local_models import Resnet_Modified as modelFactory
+    else if idxModel=='Unet_Modified':
+        from local_models import Unet_Modified as modelFactory
+
     
 
     model=modelFactory.ModelAE()  
