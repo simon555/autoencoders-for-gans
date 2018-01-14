@@ -137,9 +137,8 @@ class ModelAE(nn.Module):
             
             
             
-        print('use CUDA : ',self.useCuda)
-        
-        print('model loaded')
+        print('use CUDA : ',self.useCuda)        
+        print('model loaded : Resnet Modified')
         
 
  

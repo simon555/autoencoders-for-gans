@@ -27,7 +27,7 @@ class ModelAE(nn.Module):
         
         
         print('use CUDA : ',self.useCuda)        
-        print('model loaded')
+        print('model loaded : Inception Modified')
         
     def forward(self,image):
         return(self.decoder(self.encoder(image)))
