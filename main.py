@@ -12,7 +12,7 @@ from __future__ import print_function
 
 import sys
 import os
-
+import time
 use_different_pytorch = True
 
 import sys
@@ -52,7 +52,7 @@ Nplot=1
 Nsave=10
 Nexperience=1 
 learningRate=0.001
-idxModel='Inception_Modified'
+idxModel='Unet_Modified'
 choiceLoss='L1Loss'
 dataset='svhn'
 
@@ -76,6 +76,7 @@ for i in vars(args):
     line_new = '{:>12}  {:>12} \n'.format(i, getattr(args,i))
     descriptor+=line_new
     print(line_new)
+time.sleep(5)
 
 #custom values
 Nepochs=getattr(args,'Nepochs')
