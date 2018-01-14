@@ -167,6 +167,8 @@ if __name__=='__main__':
         from local_models import Resnet_Modified as modelFactory
     elif idxModel=='Unet_Modified':
         from local_models import Unet_Modified as modelFactory
+    elif idxModel=='SingleCodeUnet':
+        from local_models import SingleCodeUnet as modelFactory
 
     
 
