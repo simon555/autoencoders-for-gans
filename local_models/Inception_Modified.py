@@ -371,7 +371,7 @@ class FinalConv(nn.Module):
     def forward(self, x):
         x = self.conv(x)
         x = self.bn(x)
-        return F.sigmoid(x, inplace=True)
+        return F.relu(x, inplace=True)
  
 
 
