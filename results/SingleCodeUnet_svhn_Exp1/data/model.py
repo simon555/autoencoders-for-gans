@@ -113,7 +113,7 @@ class UpConv(nn.Module):
         return x
 
 
-class ModelAE(nn.Module):
+class intermediate(nn.Module):
     """ `UNet` class is based on https://arxiv.org/abs/1505.04597
 
     The U-Net is a convolutional encoder-decoder neural network.
@@ -150,7 +150,7 @@ class ModelAE(nn.Module):
                 for transpose convolution or 'upsample' for nearest neighbour
                 upsampling.
         """
-        super(ModelAE, self).__init__()
+        super(intermediate, self).__init__()
 
         if up_mode in ('transpose', 'upsample'):
             self.up_mode = up_mode
@@ -257,7 +257,7 @@ class ModelAE(nn.Module):
         return x
     
     
-class intermediate(nn.Module):
+class ModelAE(nn.Module):
     """ `UNet` class is based on https://arxiv.org/abs/1505.04597
 
     The U-Net is a convolutional encoder-decoder neural network.
@@ -294,7 +294,7 @@ class intermediate(nn.Module):
                 for transpose convolution or 'upsample' for nearest neighbour
                 upsampling.
         """
-        super(intermediate, self).__init__()
+        super(ModelAE, self).__init__()
 
         if up_mode in ('transpose', 'upsample'):
             self.up_mode = up_mode
@@ -339,7 +339,7 @@ class intermediate(nn.Module):
             down_conv = DownConv(ins, self.outs, pooling=pooling)
             self.down_convs.append(down_conv)
             if i <self.depth-1:
-                tempModel = ModelAE(output_channels=self.outs, in_channels=self.outs, depth=self.depth-i, 
+                tempModel = intermediate(output_channels=self.outs, in_channels=self.outs, depth=self.depth-i, 
                 start_filts=self.outs, up_mode='transpose', 
                  merge_mode='concat')
                 self.modelAEs.append(tempModel)
@@ -424,7 +424,7 @@ class intermediate(nn.Module):
 
                 
             #print(x.size())
-        print('main code shape : ',x.size())
+        #print('main code shape : ',x.size())
         for i, module in enumerate(self.up_convs):
             before_pool = encoder_outs[-(i+2)]
             x = module(before_pool, x)
@@ -443,7 +443,7 @@ if __name__ == "__main__":
     testing
     """
     print('testing model U-net')
-    model = intermediate(depth=4, merge_mode='concat')
+    model = ModelAE(depth=4, merge_mode='concat')
     if model.useCuda:
         x = Variable(torch.FloatTensor(np.random.random((1, 3, 32, 32))).cuda())
     else:
@@ -458,6 +458,9 @@ if __name__ == "__main__":
     params = sum([np.prod(p.size()) for p in model_parameters])
     print('number of parameters : ',params)
     
+    
+    y=model.encode(x)
+    print('main code shape ', y.size())
     
 #    LE=model.encoder_outs
 #    LD=model.decoder_outs
