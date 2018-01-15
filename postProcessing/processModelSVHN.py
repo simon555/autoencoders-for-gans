@@ -33,8 +33,8 @@ def rescale(img):
     return((img-mi)/(ma-mi))
     
     
-idxModel='SingleCodeUnet_svhn_Exp1'
-Epoch=11
+idxModel='SingleCodeUnet_svhn_Exp3'
+Epoch=51
     
 fileDirectory = "../results/{}/".format(idxModel)
 
