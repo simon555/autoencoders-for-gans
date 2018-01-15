@@ -27,23 +27,31 @@ import torchvision.transforms as transforms
 import os
 
 
-Nexperience=13
-Nepoch=591
-
 def rescale(img):
     mi=img.min()
     ma=img.max()
     return((img-mi)/(ma-mi))
     
     
-
-#filename="../results/Exp{}/models/Exp13Epoch{}.pt".format(Nexperience,Nepoch)
+idxModel='SingleCodeUnet_svhn_Exp1'
+Epoch=11
     
-fileDirectory = "../results/Inception_Modified1/"
+fileDirectory = "../results/{}/".format(idxModel)
 
-sys.path.insert(0,fileDirectory)
-filename=fileDirectory+'Epoch91.pt'
+dataFolder=fileDirectory+'data/'
+sys.path.insert(0,dataFolder)
 
+filename=fileDirectory+'models/Epoch{}.pt'.format(Epoch)
+if not os.path.exists(filename):
+    print('downloading the model from remote...')
+    if not os.path.exists(fileDirectory+'models/'):
+        os.makedirs(fileDirectory+'models/')
+    
+    commandBash='pscp sebbaghs@elisa2.iro.umontreal.ca:/u/sebbaghs/Projects/autoencoders-for-gans/results/{}/models/Epoch{}.pt'.format(idxModel,Epoch)
+    commandBash+=' {}'.format(filename)
+    
+    check=os.system(commandBash)
+    print('done : ',check)
 import model as mod
 
 the_model = mod.ModelAE()
@@ -51,18 +59,13 @@ the_model = mod.ModelAE()
 the_model.load_state_dict(torch.load(filename))
 the_model.cpu()
 
-transform = transforms.Compose(
-        [transforms.ToTensor()])
-    
-testset = torchvision.datasets.SVHN(root='../datasets/SVHN', split='train',
-                                           download=True, transform=transform)
 
 transform = transforms.Compose(
         [transforms.ToTensor(),transforms.Lambda(rescale)])
-    
-transformed=torchvision.datasets.SVHN(root='../datasets/SVHN', split='train',
+
+testset = torchvision.datasets.SVHN(root='../datasets/SVHN', split='test',
                                            download=True, transform=transform)
-    
+
     
 for i,data in enumerate(testset):
     images, labels = data
@@ -76,22 +79,18 @@ for i,data in enumerate(testset):
     print('image ', i)
     pl.figure()
     
-    images= transformed[i][0]
-    images=Variable(images.unsqueeze(0))
-    outputs = the_model(images)
-    
-    imgInput2=images[0,:,:,:].cpu().data.numpy().transpose((1,2,0))
-    imgOutput2=outputs[0,:,:,:].cpu().data.numpy().transpose((1,2,0))
+    if i==24:
+        inp=imgInput
+        out=imgOutput
     
     pl.subplot(131)
-    pl.imshow(imgInput2)
+    pl.imshow(imgInput)
     pl.title('original image')
     pl.subplot(132)
-    #pl.imshow(imgOutput2)
+    pl.imshow(imgOutput)
     pl.title("reconstructed image")
-    pl.savefig(imgInput2,'derp.png')
 
-    error=np.square(np.subtract(imgInput2, imgOutput2)).mean(axis=2)
+    error=np.square(np.subtract(imgInput, imgOutput)).mean(axis=2)
     pl.subplot(133)
     pl.imshow(error)
     pl.title("error field")
@@ -99,5 +98,4 @@ for i,data in enumerate(testset):
     pl.colorbar()
     pl.legend()
     pl.show()
-
 
