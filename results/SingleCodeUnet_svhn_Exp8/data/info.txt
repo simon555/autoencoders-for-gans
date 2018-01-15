@@ -1,0 +1,12 @@
+experience done on : 15/01/2018 at 10:55:56  
+       Nsave            10 
+ Nexperience             1 
+    idxModel  SingleCodeUnet 
+       Nplot             1 
+ NbatchTrain           256 
+     Nepochs         10000 
+     dataset          svhn 
+learningRate        0.0001 
+  choiceLoss        L1Loss 
+  NbatchTest           128 
+epoch,trainLoss,testLoss  
