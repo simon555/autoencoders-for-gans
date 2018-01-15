@@ -424,7 +424,7 @@ class ModelAE(nn.Module):
 
                 
             #print(x.size())
-        print('main code shape : ',x.size())
+        #print('main code shape : ',x.size())
         for i, module in enumerate(self.up_convs):
             before_pool = encoder_outs[-(i+2)]
             x = module(before_pool, x)
@@ -458,6 +458,9 @@ if __name__ == "__main__":
     params = sum([np.prod(p.size()) for p in model_parameters])
     print('number of parameters : ',params)
     
+    
+    y=model.encode(x)
+    print('main code shape ', y.size())
     
 #    LE=model.encoder_outs
 #    LD=model.decoder_outs
