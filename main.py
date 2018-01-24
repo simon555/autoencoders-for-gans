@@ -169,6 +169,8 @@ if __name__=='__main__':
         from local_models import Unet_Modified as modelFactory
     elif idxModel=='SingleCodeUnet':
         from local_models import SingleCodeUnet as modelFactory
+    elif idxModel=='MyDeep':
+        from local_models import MyDeep as modelFactory
 
     
 
