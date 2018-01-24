@@ -569,7 +569,7 @@ if __name__ == "__main__":
     testing
     """
     print('testing model U-net')
-    depth=4
+    depth=3
     model = ModelAE(depth=depth)
     if model.useCuda:
         x= Variable(torch.FloatTensor(np.random.random((2, 3, 32, 32))).cuda())

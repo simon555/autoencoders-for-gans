@@ -55,6 +55,10 @@ learningRate=0.001
 idxModel='Unet_Modified'
 choiceLoss='L1Loss'
 dataset='svhn'
+depth=4
+
+
+
 
 parser=argparse.ArgumentParser()
 parser.add_argument('--Nepochs', default=Nepochs,type=int)
@@ -67,6 +71,7 @@ parser.add_argument('--learningRate', default=learningRate,type=float)
 parser.add_argument('--idxModel', default=idxModel,type=str)
 parser.add_argument('--choiceLoss', default=choiceLoss,type=str)
 parser.add_argument('--dataset', default=dataset,type=str) 
+parser.add_argument('--depth', default=depth,type=int) 
 
 
 args = parser.parse_args()
@@ -173,8 +178,13 @@ if __name__=='__main__':
         from local_models import MyDeep as modelFactory
 
     
-
-    model=modelFactory.ModelAE()  
+    
+    
+    
+    if idxModel='MyDeep':
+        model=modelFactory.ModelAE(depth=depth)  
+    else:
+        model=modelFactory.ModelAE()  
     
     
     print('model loaded')
