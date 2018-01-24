@@ -182,7 +182,7 @@ if __name__=='__main__':
     
     
     
-    if idxModel='MyDeep':
+    if idxModel=='MyDeep':
         model=modelFactory.ModelAE(depth=depth)  
     else:
         model=modelFactory.ModelAE()  
