@@ -92,8 +92,9 @@ Nsave=getattr(args,'Nsave')
 Nexperience=getattr(args,'Nexperience')
 learningRate=getattr(args,'learningRate')
 idxModel=getattr(args,'idxModel')
-choiceLoss==getattr(args,'choiceLoss')
-
+choiceLoss=getattr(args,'choiceLoss')
+dataset=getattr(args,'dataset')
+depth=getattr(args,'depth')
 
 if os.name=='nt':
     modelName='{}\\local_models\\{}.py'.format(os.getcwd(),idxModel)
