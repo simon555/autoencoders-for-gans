@@ -33,8 +33,8 @@ def rescale(img):
     return((img-mi)/(ma-mi))
     
     
-idxModel='SingleCodeUnet_svhn_Exp3'
-Epoch=51
+idxModel='SingleCodeUnet_svhn_Exp8'
+Epoch=41
     
 fileDirectory = "../results/{}/".format(idxModel)
 
@@ -97,5 +97,7 @@ for i,data in enumerate(testset):
     
     pl.colorbar()
     pl.legend()
+    
+    pl.savefig('../results/{}/image{}'.format(idxModel,i))
     pl.show()
 

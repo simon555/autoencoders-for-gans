@@ -210,7 +210,7 @@ class ModelAE(nn.Module):
             self.cuda()
         
         print('use CUDA : ',self.useCuda)        
-        print('model loaded : Inception Modified')
+        print('model loaded : Unet Modified')
 
     @staticmethod
     def weight_init(m):
