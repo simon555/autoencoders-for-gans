@@ -93,6 +93,52 @@ class myDownConv(nn.Module):
             x = self.pool(x)
         return (x)
 
+class myUpConv(nn.Module):
+    """
+    A helper Module that performs 2 convolutions and 1 UpConvolution.
+    A ReLU activation follows each convolution.
+    """
+    def __init__(self, in_channels, out_channels, 
+                 merge_mode='concat', up_mode='transpose'):
+        super(myUpConv, self).__init__()
+
+        self.in_channels = in_channels
+        self.out_channels = out_channels
+        self.merge_mode = merge_mode
+        self.up_mode = up_mode
+
+        self.upconv = upconv2x2(self.out_channels, self.out_channels, 
+            mode=self.up_mode)
+        
+        if self.merge_mode == 'concat':
+            self.conv1 = conv3x3(
+                2*self.in_channels, self.out_channels)
+        else:
+            # num of input channels to conv2 is same
+            self.conv1 = conv3x3(self.out_channels, self.out_channels)
+        self.conv2 = conv3x3(self.out_channels, self.out_channels)
+        
+        
+        
+    def forward(self, from_down, from_left):
+        """ Forward pass
+        Arguments:
+            from_down: tensor from the down-bock
+            from_left: tensor from the left-block
+        """
+       
+        
+       
+        if self.merge_mode == 'concat':
+            x = torch.cat((from_down, from_left), 1)
+        else:
+            x = from_down + from_down
+
+        x = F.relu(self.conv1(x))
+        x = F.relu(self.conv2(x))
+        x = F.relu(self.upconv(x))
+        
+        return x
 
 class UpConv(nn.Module):
     """
@@ -178,80 +224,15 @@ class ModelAE(nn.Module):
                 upsampling.
         """
         super(ModelAE, self).__init__()
-
-        if up_mode in ('transpose', 'upsample'):
-            self.up_mode = up_mode
-        else:
-            raise ValueError("\"{}\" is not a valid mode for "
-                             "upsampling. Only \"transpose\" and "
-                             "\"upsample\" are allowed.".format(up_mode))
-    
-        if merge_mode in ('concat', 'add'):
-            self.merge_mode = merge_mode
-        else:
-            raise ValueError("\"{}\" is not a valid mode for"
-                             "merging up and down paths. "
-                             "Only \"concat\" and "
-                             "\"add\" are allowed.".format(up_mode))
-
-        # NOTE: up_mode 'upsample' is incompatible with merge_mode 'add'
-        if self.up_mode == 'upsample' and self.merge_mode == 'add':
-            raise ValueError("up_mode \"upsample\" is incompatible "
-                             "with merge_mode \"add\" at the moment "
-                             "because it doesn't make sense to use "
-                             "nearest neighbour to reduce "
-                             "depth channels (by half).")
-
-        self.output_channels = output_channels
-        self.in_channels = in_channels
-        self.start_filts = start_filts
-        self.depth = depth
-
-        self.shapeOfCode=self.start_filts*(2**(self.depth-1))
-        
-
-        self.down_convs = []
-        self.up_convs = []
-        self.modelAEs=[]
-
-        #random initialization
-        outs=888
-        # create the encoder pathway and add to a list
-        for i in range(self.depth):
-            ins = self.in_channels if i == 0 else outs
-            outs = self.start_filts*(2**i)
-            pooling = True if i < depth-1 else False
-
-            down_conv = DownConv(ins, outs, pooling=pooling)
-            self.down_convs.append(down_conv)
-           
-       
-
-        # create the decoder pathway and add to a list
-        # - careful! decoding only requires depth-1 blocks
-        for i in range(depth-1):
-            ins = outs
-            outs = ins // 2
-            up_conv = UpConv(ins, outs, up_mode=up_mode,
-                merge_mode=merge_mode)
-            self.up_convs.append(up_conv)
-
-        self.conv_final = conv1x1(outs, self.output_channels)
-
-        # add the list of modules to current module
-        self.modelAEs = nn.ModuleList(self.modelAEs)
-
-        self.down_convs = nn.ModuleList(self.down_convs)
-        self.up_convs = nn.ModuleList(self.up_convs)
-
-        self.reset_params()
         
         self.useCuda=torch.cuda.is_available()
         if self.useCuda:
             self.cuda()
-        
-        print('use CUDA : ',self.useCuda)        
-        print('model loaded : Inception Modified')
+
+        self.depth=depth
+        self.encoder=Encoder(depth=self.depth)
+        self.decoder=Decoder(depth=self.depth)
+        print('model loaded : GridNet Modified')
 
     @staticmethod
     def weight_init(m):
@@ -264,87 +245,9 @@ class ModelAE(nn.Module):
         for i, m in enumerate(self.modules()):
             self.weight_init(m)
         
-    def encode(self,x):
-        
-        
-        #self.encoder_outs = []
-        #self.decoder_outs = []
-         
-        # encoder pathway, save outputs for merging
-        for i, module in enumerate(self.down_convs):
-            x, before_pool = module(x)
-            #encoder_outs.append(before_pool)
-            #print('input of test', before_pool.size())
-            if i<self.depth-1:
-                before_pool=self.modelAEs[i](before_pool)
-                #print("test size: ",test.size())
-                if i==0:
-                    output=self.modelAEs[i].code
-                else:
-                    output=torch.cat((output,self.modelAEs[i].code),1)
-            else:
-                output=torch.cat((output,x),1)
-                
-        return(output)
-        
-    def getEncoderOuts(self,code,index):
-        index=(index%4)
-        
-        begin=index*self.shapeOfCode
-        end=(index+1)*self.shapeOfCode
-        return(code[:,begin:end,:,:])#.clone())
-    
-        
-    def decode(self,code):
-
-        x=self.getEncoderOuts(code,-1)
-        for i, module in enumerate(self.up_convs):
-            before_pool = self.getEncoderOuts(code,-(i+2))
-            print(x.size())
-            x = module(before_pool, x)
-            #print(x.size())
-
-            #self.decoder_outs.append(x)
-        
-        # No softmax is used. This means you need to use
-        # nn.CrossEntropyLoss is your training script,
-        # as this module includes a softmax already.
-        x = F.relu(self.conv_final(x))
-        return (x)
-
     
     def forward(self, x):
-        encoder_outs = []
-        
-        #self.encoder_outs = []
-        #self.decoder_outs = []
-         
-        # encoder pathway, save outputs for merging
-        for i, module in enumerate(self.down_convs):
-            x, before_pool = module(x)
-           
-            #encoder_outs.append(before_pool)
-            #print('input of test', before_pool.size())
-            
-            encoder_outs.append(before_pool)
-
-                
-            #print(x.size())
-        #print('main code shape : ',x.size())
-        for i, module in enumerate(self.up_convs):
-            before_pool = encoder_outs[-(i+2)]
-            #print('inside main AE, x : ',x.size())
-            #print('and before : ', before_pool.size())
-            x = module(before_pool, x)
-            #print(x.size())
-
-            #self.decoder_outs.append(x)
-        
-        # No softmax is used. This means you need to use
-        # nn.CrossEntropyLoss is your training script,
-        # as this module includes a softmax already.
-        x = F.relu(self.conv_final(x))
-        return x
+        return (self.decoder(self.encoder(x)))
     
 class Encoder(nn.Module):
     """ `UNet` class is based on https://arxiv.org/abs/1505.04597
@@ -420,7 +323,7 @@ class Encoder(nn.Module):
         self.down_convs = []
         self.up_convs = [[]]
 
-                
+
 
        
         # create the encoder pathway and add to a list
@@ -465,6 +368,11 @@ class Encoder(nn.Module):
             init.constant(m.bias, 0)
 
 
+
+        
+        
+        
+        
     def reset_params(self):
         for i, m in enumerate(self.modules()):
             self.weight_init(m)
@@ -516,7 +424,7 @@ class Decoder(nn.Module):
         the tranpose convolution (specified by upmode='transpose')
     """
 
-    def __init__(self, output_channels=512, in_channels=3, depth=4, 
+    def __init__(self, output_channels=3, in_channels=2048, depth=4, 
                  start_filts=64, up_mode='transpose', 
                  merge_mode='concat'):
         """
@@ -555,7 +463,7 @@ class Decoder(nn.Module):
                              "nearest neighbour to reduce "
                              "depth channels (by half).")
 
-        self.output_channels = start_filts*(2**(depth))
+        self.output_channels = output_channels
         print('output channels ',output_channels)
         self.in_channels = in_channels
         self.start_filts = start_filts
@@ -564,33 +472,33 @@ class Decoder(nn.Module):
         self.shapeOfCode=self.start_filts*(2**(self.depth-1))
         
 
-        self.down_convs = []
-        self.up_convs = [[]]
+        self.up_convs = []
 
                 
 
        
         # create the encoder pathway and add to a list
-        for i in range(self.depth):
-            self.down_convs.append([])
-            for j in range(i,self.depth):
-                if i==0 and j==0:
-                    ins = self.in_channels
-                    outs=self.start_filts
-                    pooling=False
-                else:
-                    ins = self.start_filts*(2**(j-1))
-                    outs=2*ins
-                    pooling = True #if i < depth-1 else False
+        for i in range(self.depth-1):
+            self.up_convs.append([])
+            for j in range(self.depth-i-1):
+                ins = self.shapeOfCode//(2**(j))
+                outs=ins//2
 
                 #outs= self.start_filts*(2**(j+1))
+                up_conv = myUpConv(ins, outs)
+                self.up_convs[i].append(up_conv)
                 print('i : {}, j : {}, ins : {}, out : {}'.format(i,j,ins,outs))
-                down_conv = myDownConv(ins, outs, pooling=pooling)
-                self.down_convs[i].append(down_conv)
+
             #self.test= nn.ModuleList(self.down_convs[i])
-            self.down_convs[i] = nn.ModuleList(self.down_convs[i])
-            
-        self.down_convs= nn.ModuleList(self.down_convs)
+            if i ==0:
+                finalConv=conv1x1(outs,self.output_channels)
+                self.up_convs[i].append(finalConv)
+                print('i : {}, j : {}, ins : {}, out : {}'.format(i,j+1,outs,self.output_channels))
+
+            self.up_convs[i] = nn.ModuleList(self.up_convs[i])
+
+                
+        self.up_convs= nn.ModuleList(self.up_convs)
         #print(len(self.down_convs))
         #print(self.down_convs[0])
             
@@ -616,26 +524,40 @@ class Decoder(nn.Module):
         for i, m in enumerate(self.modules()):
             self.weight_init(m)
         
-    
+        
+        
+    def getBlock(self, i,bigCode,shapeOfCode):
+        begin=shapeOfCode*i
+        end=shapeOfCode*(i+1)
+        
+        return(bigCode[:,begin:end,:,:])
+        
+
    
     
     
     def forward(self, inp):
         
-         
+        
         # encoder pathway, save outputs for merging
-        for i, moduleList in enumerate(self.down_convs):
-            for l,module in enumerate(moduleList): 
-                if l==0:
-                    inp=module(inp)
-                    x=inp
+        for j in range(self.depth-1):
+            for i in range(self.depth-1-j):
+                shapeOfCode=self.shapeOfCode//(2**(j))
+                #print('expected shape of code : ', shapeOfCode)
+                input1=self.getBlock(i,inp,shapeOfCode)
+                input2=self.getBlock(i+1,inp,shapeOfCode)
+                temp=self.up_convs[i][j](input1,input2)
+                
+                if i==0:
+                    tempCode=temp
                 else:
-                    x=module(x)
-            if i ==0:
-                output=x
-            else:
-                output=torch.cat([output,x],1)      
-           
+                    tempCode=torch.cat([tempCode,temp],1)
+            inp=tempCode
+            #print('new input size : ',inp.size())
+            
+        output=self.up_convs[0][self.depth-1](inp)
+                
+                
             
         
         return (output)
@@ -648,10 +570,11 @@ if __name__ == "__main__":
     """
     print('testing model U-net')
     depth=4
-    model = Encoder(depth=depth)
+    model = ModelAE(depth=depth)
     if model.useCuda:
-        x = Variable(torch.FloatTensor(np.random.random((2, 3, 32, 32))).cuda())
-        testOutput=Variable(torch.FloatTensor(np.random.random((2, depth*64*(2**(depth-1)), 32/(2**(depth-1)), 32/(2**(depth-1))))).cuda())
+        x= Variable(torch.FloatTensor(np.random.random((2, 3, 32, 32))).cuda())
+        testOutput=x
+        #testOutput=Variable(torch.FloatTensor(np.random.random((2, depth*64*(2**(depth-1)), 32/(2**(depth-1)), 32/(2**(depth-1))))).cuda())
     else:
         x = Variable(torch.FloatTensor(np.random.random((1, 3, 32, 32))))
         
