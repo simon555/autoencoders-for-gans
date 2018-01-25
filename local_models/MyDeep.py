@@ -209,9 +209,9 @@ class ModelAE(nn.Module):
         the tranpose convolution (specified by upmode='transpose')
     """
 
-    def __init__(self, output_channels=3, in_channels=3, depth=4, 
+    def __init__(self, output_channels=3, in_channels=3, depth=2, 
                  start_filts=64, up_mode='transpose', 
-                 merge_mode='concat',lastActivation='relu'):
+                 merge_mode='concat',lastActivation='sigmoid'):
         """
         Arguments:
             in_channels: int, number of channels in the input tensor.
@@ -427,7 +427,7 @@ class Decoder(nn.Module):
 
     def __init__(self, output_channels=3, in_channels=2048, depth=2, 
                  start_filts=64, up_mode='transpose', 
-                 merge_mode='concat',lastActivation='relu'):
+                 merge_mode='concat',lastActivation='sigmoid'):
         """
         Arguments:
             in_channels: int, number of channels in the input tensor.
