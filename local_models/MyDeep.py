@@ -273,7 +273,7 @@ class Encoder(nn.Module):
         the tranpose convolution (specified by upmode='transpose')
     """
 
-    def __init__(self, output_channels=512, in_channels=3, depth=4, 
+    def __init__(self, output_channels=512, in_channels=3, depth=2, 
                  start_filts=64, up_mode='transpose', 
                  merge_mode='concat'):
         """
@@ -425,7 +425,7 @@ class Decoder(nn.Module):
         the tranpose convolution (specified by upmode='transpose')
     """
 
-    def __init__(self, output_channels=3, in_channels=2048, depth=4, 
+    def __init__(self, output_channels=3, in_channels=2048, depth=2, 
                  start_filts=64, up_mode='transpose', 
                  merge_mode='concat',lastActivation='relu'):
         """
