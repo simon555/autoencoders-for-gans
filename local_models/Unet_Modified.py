@@ -247,7 +247,7 @@ class ModelAE(nn.Module):
         # nn.CrossEntropyLoss is your training script,
         # as this module includes a softmax already.
         x = self.conv_final(x)
-        return x
+        return (F.sigmoid(x))
 
 if __name__ == "__main__":
     """

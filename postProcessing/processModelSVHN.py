@@ -33,8 +33,9 @@ def rescale(img):
     return((img-mi)/(ma-mi))
     
     
-idxModel='MyDeep_svhn_Exp12'
-Epoch=111
+idxModel='Unet_Modified_cifar_Exp2'
+Epoch=21
+dataset='cifar'
     
 fileDirectory = "../results/{}/".format(idxModel)
 
@@ -55,7 +56,10 @@ if not os.path.exists(filename):
 import model as mod
 
 ##SPECIFIC TO MYDEEP
-the_model = mod.ModelAE(depth=2,lastActivation='sigmoid')
+#the_model = mod.ModelAE(depth=2,lastActivation='sigmoid')
+the_model = mod.ModelAE()
+
+
 
 the_model.load_state_dict(torch.load(filename))
 the_model.cpu()
@@ -64,7 +68,13 @@ the_model.cpu()
 transform = transforms.Compose(
         [transforms.ToTensor(),transforms.Lambda(rescale)])
 
-testset = torchvision.datasets.SVHN(root='../datasets/SVHN', split='test',
+
+if dataset == "cifar":
+        testset = torchvision.datasets.CIFAR10(root='../datasets/CIFAR', train=False,
+                                           download=True, transform=transform)
+        
+elif dataset=='svhn':
+    testset = torchvision.datasets.SVHN(root='../datasets/SVHN', split='test',
                                            download=True, transform=transform)
 
     
