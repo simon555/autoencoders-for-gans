@@ -33,8 +33,8 @@ def rescale(img):
     return((img-mi)/(ma-mi))
     
     
-idxModel='MyDeep_svhn_Exp5'
-Epoch=131
+idxModel='MyDeep_svhn_Exp12'
+Epoch=111
     
 fileDirectory = "../results/{}/".format(idxModel)
 
@@ -47,7 +47,7 @@ if not os.path.exists(filename):
     if not os.path.exists(fileDirectory+'models/'):
         os.makedirs(fileDirectory+'models/')
     
-    commandBash='pscp sebbaghs@elisa2.iro.umontreal.ca:/u/sebbaghs/Projects/autoencoders-for-gans/results/{}/models/Epoch{}.pt'.format(idxModel,Epoch)
+    commandBash='pscp sebbaghs@elisa2.iro.umontreal.ca:/data/milatmp1/sebbaghs/autoencoders-for-gans/results/{}/models/Epoch{}.pt'.format(idxModel,Epoch)
     commandBash+=' {}'.format(filename)
     
     check=os.system(commandBash)
@@ -55,7 +55,7 @@ if not os.path.exists(filename):
 import model as mod
 
 ##SPECIFIC TO MYDEEP
-the_model = mod.ModelAE(depth=3)
+the_model = mod.ModelAE(depth=2,lastActivation='sigmoid')
 
 the_model.load_state_dict(torch.load(filename))
 the_model.cpu()
@@ -99,6 +99,6 @@ for i,data in enumerate(testset):
     pl.colorbar()
     pl.legend()
     
-    pl.savefig('../results/{}/image{}'.format(idxModel,i))
+    #pl.savefig('../results/{}/image{}'.format(idxModel,i))
     pl.show()
 
