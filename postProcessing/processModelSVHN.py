@@ -33,8 +33,8 @@ def rescale(img):
     return((img-mi)/(ma-mi))
     
     
-idxModel='SingleCodeUnet_svhn_Exp8'
-Epoch=41
+idxModel='MyDeep_svhn_Exp5'
+Epoch=131
     
 fileDirectory = "../results/{}/".format(idxModel)
 
@@ -54,7 +54,8 @@ if not os.path.exists(filename):
     print('done : ',check)
 import model as mod
 
-the_model = mod.ModelAE()
+##SPECIFIC TO MYDEEP
+the_model = mod.ModelAE(depth=3)
 
 the_model.load_state_dict(torch.load(filename))
 the_model.cpu()

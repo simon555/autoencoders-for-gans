@@ -211,7 +211,7 @@ class ModelAE(nn.Module):
 
     def __init__(self, output_channels=3, in_channels=3, depth=4, 
                  start_filts=64, up_mode='transpose', 
-                 merge_mode='concat'):
+                 merge_mode='concat',lastActivation='relu'):
         """
         Arguments:
             in_channels: int, number of channels in the input tensor.
@@ -230,8 +230,9 @@ class ModelAE(nn.Module):
             self.cuda()
 
         self.depth=depth
+        self.lastActivation=lastActivation
         self.encoder=Encoder(depth=self.depth)
-        self.decoder=Decoder(depth=self.depth)
+        self.decoder=Decoder(depth=self.depth,lastActivation=self.lastActivation)
         print('model loaded : GridNet Modified')
 
     @staticmethod
@@ -426,7 +427,7 @@ class Decoder(nn.Module):
 
     def __init__(self, output_channels=3, in_channels=2048, depth=4, 
                  start_filts=64, up_mode='transpose', 
-                 merge_mode='concat'):
+                 merge_mode='concat',lastActivation='relu'):
         """
         Arguments:
             in_channels: int, number of channels in the input tensor.
@@ -468,7 +469,7 @@ class Decoder(nn.Module):
         self.in_channels = in_channels
         self.start_filts = start_filts
         self.depth = depth
-
+        self.lastActivation=lastActivation
         self.shapeOfCode=self.start_filts*(2**(self.depth-1))
         
 
@@ -557,7 +558,10 @@ class Decoder(nn.Module):
             
         output=self.up_convs[0][self.depth-1](inp)
                 
-                
+        if self.lastActivation=='relu':
+            output=F.relu(output)
+        elif self.lastActivation=='sigmoid':
+            output=F.sigmoid(output)
             
         
         return (output)
@@ -569,8 +573,8 @@ if __name__ == "__main__":
     testing
     """
     print('testing model U-net')
-    depth=3
-    model = ModelAE(depth=depth)
+    depth=2
+    model = ModelAE(depth=depth,lastActivation='sigmoid')
     if model.useCuda:
         x= Variable(torch.FloatTensor(np.random.random((2, 3, 32, 32))).cuda())
         testOutput=x

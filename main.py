@@ -56,7 +56,7 @@ idxModel='Unet_Modified'
 choiceLoss='L1Loss'
 dataset='svhn'
 depth=4
-
+lastActivation='relu'
 
 
 
@@ -72,6 +72,9 @@ parser.add_argument('--idxModel', default=idxModel,type=str)
 parser.add_argument('--choiceLoss', default=choiceLoss,type=str)
 parser.add_argument('--dataset', default=dataset,type=str) 
 parser.add_argument('--depth', default=depth,type=int) 
+parser.add_argument('--lastActivation', default=lastActivation,type=str) 
+
+
 
 
 args = parser.parse_args()
@@ -95,6 +98,7 @@ idxModel=getattr(args,'idxModel')
 choiceLoss=getattr(args,'choiceLoss')
 dataset=getattr(args,'dataset')
 depth=getattr(args,'depth')
+lastActivation=getattr(args,'lastActivation')
 
 if os.name=='nt':
     modelName='{}\\local_models\\{}.py'.format(os.getcwd(),idxModel)
@@ -151,6 +155,17 @@ if __name__=='__main__':
                                            download=True, transform=transform)
         testloader = torch.utils.data.DataLoader(testset, batch_size=NbatchTest,
                                              shuffle=True, num_workers=0,drop_last=True)
+        
+    elif dataset == "mnist":
+        trainset = torchvision.datasets.CIFAR10(root='./datasets/MNIST', train=True,
+                                            download=True, transform=transform)
+        trainloader = torch.utils.data.DataLoader(trainset, batch_size=NbatchTrain,
+                                              shuffle=True, num_workers=0)
+
+        testset = torchvision.datasets.CIFAR10(root='./datasets/MNIST', train=False,
+                                           download=True, transform=transform)
+        testloader = torch.utils.data.DataLoader(testset, batch_size=NbatchTest,
+                                             shuffle=True, num_workers=0,drop_last=True)
     
     print("data loaded")
     TotalTrain=len(trainloader)*NbatchTrain
@@ -183,7 +198,7 @@ if __name__=='__main__':
     
     
     if idxModel=='MyDeep':
-        model=modelFactory.ModelAE(depth=depth)  
+        model=modelFactory.ModelAE(depth=depth,lastActivation=lastActivation)  
     else:
         model=modelFactory.ModelAE()  
     
