@@ -33,9 +33,9 @@ def rescale(img):
     return((img-mi)/(ma-mi))
     
     
-idxModel='Unet_Modified_cifar_Exp2'
-Epoch=21
-dataset='cifar'
+idxModel='Unet_Modified_cifar_Exp3'
+Epoch=91
+dataset='svhn'
     
 fileDirectory = "../results/{}/".format(idxModel)
 

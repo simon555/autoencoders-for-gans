@@ -7,11 +7,16 @@ Created on Sun Dec 10 16:41:22 2017
 
 import matplotlib.pyplot as pl
 
-Nexp=13
+
+idxModel='Unet_Modified_cifar_Exp3'
+    
+fileDirectory = "../results/{}/".format(idxModel)
+
+dataFolder=fileDirectory+'data/'
 
 
 
-path="./results/Exp{}/data/data.txt".format(Nexp)
+path=dataFolder+"data.txt"
 
 
 f=open(path,'r')

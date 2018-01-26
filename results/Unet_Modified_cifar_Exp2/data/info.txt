@@ -10,5 +10,5 @@ experience done on : 25/01/2018 at 10:26:04
 learningRate         0.001 
        depth             2 
      dataset         cifar 
-lastActivation       sigmoid 
+lastActivation         
 epoch,trainLoss,testLoss  
