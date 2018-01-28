@@ -171,7 +171,7 @@ def rescale(img):
     return(((img-mi)/(ma-mi)-0)*1)
     
 def adaptToRGB(img):
-    return(torch.cat([img,img,img],dim=1))
+    return(torch.cat([img,img,img],dim=0))
        
    
     
