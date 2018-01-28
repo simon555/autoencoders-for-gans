@@ -404,7 +404,9 @@ if __name__=='__main__':
             auxCodeB,auxReconstructionB,
             auxCodeA_UNION_B,auxReconstrutionA_UNION_B) = model(inputsA,inputsB,both)
                 
-                
+            print(auxCodeA_UNION_B.size())
+            print(codeA_INTER_B_fromA.size())
+            print(codeA_INTER_B_fromB.size())
             loss = criterion(inputsA, inputsB,both,codeA,codeA_INTER_B_fromA,reconstructionA,
                 codeB,codeA_INTER_B_fromB,reconstructionB,
                 auxCodeA,auxReconstructionA,
