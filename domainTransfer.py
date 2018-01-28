@@ -158,8 +158,9 @@ def criterion(inputsA, inputsB, both,
     output+=metrics(inputsB,auxReconstructionB)    
     output+=metrics(both,auxReconstrutionA_UNION_B)
 
-    output+=metrics(auxCodeA_UNION_B,codeA_INTER_B_fromA)
-    output+=metrics(auxCodeA_UNION_B,codeA_INTER_B_fromB)
+    temp=torch.cat([codeA_INTER_B_fromA,codeA_INTER_B_fromB],dim=0)
+    output+=metrics(auxCodeA_UNION_B,temp)
+    
 
     #output+=metrics(codeA_INTER_B_fromA,auxCodeA)
     #output+=metrics(codeA_INTER_B_fromB,auxCodeB)
@@ -404,9 +405,7 @@ if __name__=='__main__':
             auxCodeB,auxReconstructionB,
             auxCodeA_UNION_B,auxReconstrutionA_UNION_B) = model(inputsA,inputsB,both)
                 
-            print(auxCodeA_UNION_B.size())
-            print(codeA_INTER_B_fromA.size())
-            print(codeA_INTER_B_fromB.size())
+            
             loss = criterion(inputsA, inputsB,both,codeA,codeA_INTER_B_fromA,reconstructionA,
                 codeB,codeA_INTER_B_fromB,reconstructionB,
                 auxCodeA,auxReconstructionA,
