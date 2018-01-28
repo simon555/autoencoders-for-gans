@@ -33,8 +33,9 @@ def rescale(img):
     return((img-mi)/(ma-mi))
     
     
-idxModel='SingleCodeUnet_svhn_Exp3'
-Epoch=51
+idxModel='Unet_Modified_cifar_Exp3'
+Epoch=91
+dataset='svhn'
     
 fileDirectory = "../results/{}/".format(idxModel)
 
@@ -47,14 +48,18 @@ if not os.path.exists(filename):
     if not os.path.exists(fileDirectory+'models/'):
         os.makedirs(fileDirectory+'models/')
     
-    commandBash='pscp sebbaghs@elisa2.iro.umontreal.ca:/u/sebbaghs/Projects/autoencoders-for-gans/results/{}/models/Epoch{}.pt'.format(idxModel,Epoch)
+    commandBash='pscp sebbaghs@elisa2.iro.umontreal.ca:/data/milatmp1/sebbaghs/autoencoders-for-gans/results/{}/models/Epoch{}.pt'.format(idxModel,Epoch)
     commandBash+=' {}'.format(filename)
     
     check=os.system(commandBash)
     print('done : ',check)
 import model as mod
 
+##SPECIFIC TO MYDEEP
+#the_model = mod.ModelAE(depth=2,lastActivation='sigmoid')
 the_model = mod.ModelAE()
+
+
 
 the_model.load_state_dict(torch.load(filename))
 the_model.cpu()
@@ -63,7 +68,13 @@ the_model.cpu()
 transform = transforms.Compose(
         [transforms.ToTensor(),transforms.Lambda(rescale)])
 
-testset = torchvision.datasets.SVHN(root='../datasets/SVHN', split='test',
+
+if dataset == "cifar":
+        testset = torchvision.datasets.CIFAR10(root='../datasets/CIFAR', train=False,
+                                           download=True, transform=transform)
+        
+elif dataset=='svhn':
+    testset = torchvision.datasets.SVHN(root='../datasets/SVHN', split='test',
                                            download=True, transform=transform)
 
     
@@ -97,5 +108,7 @@ for i,data in enumerate(testset):
     
     pl.colorbar()
     pl.legend()
+    
+    #pl.savefig('../results/{}/image{}'.format(idxModel,i))
     pl.show()
 

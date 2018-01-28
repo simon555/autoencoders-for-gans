@@ -183,27 +183,27 @@ class intermediate(nn.Module):
         self.down_convs = []
         self.up_convs = []
         #initialization of outs
-        self.outs=999
+        outs=999
         # create the encoder pathway and add to a list
         for i in range(depth):
-            ins = self.in_channels if i == 0 else self.outs
-            self.outs = self.start_filts*(2**i)
+            ins = self.in_channels if i == 0 else outs
+            outs = self.start_filts*(2**i)
             
             pooling = True if i < depth-1 else False
 
-            down_conv = DownConv(ins, self.outs, pooling=pooling)
+            down_conv = DownConv(ins, outs, pooling=pooling)
             self.down_convs.append(down_conv)
 
         # create the decoder pathway and add to a list
         # - careful! decoding only requires depth-1 blocks
         for i in range(depth-1):
-            ins = self.outs
-            self.outs = ins // 2
-            up_conv = UpConv(ins, self.outs, up_mode=up_mode,
+            ins = outs
+            outs = ins // 2
+            up_conv = UpConv(ins, outs, up_mode=up_mode,
                 merge_mode=merge_mode)
             self.up_convs.append(up_conv)
 
-        self.conv_final = conv1x1(self.outs, self.output_channels)
+        self.conv_final = conv1x1(outs, self.output_channels)
 
         # add the list of modules to current module
         self.down_convs = nn.ModuleList(self.down_convs)
@@ -229,6 +229,53 @@ class intermediate(nn.Module):
         for i, m in enumerate(self.modules()):
             self.weight_init(m)
 
+    def encode(self,x):
+        
+        
+        #self.encoder_outs = []
+        #self.decoder_outs = []
+         
+        # encoder pathway, save outputs for merging
+        for i, module in enumerate(self.down_convs):
+            x, before_pool = module(x)
+            #encoder_outs.append(before_pool)
+            #print('input of test', before_pool.size())
+            if i<self.depth-1:
+                before_pool=self.modelAEs[i](before_pool)
+                #print("test size: ",test.size())
+                if i==0:
+                    output=self.modelAEs[i].code
+                else:
+                    output=torch.cat((output,self.modelAEs[i].code),1)
+            else:
+                output=torch.cat((output,x),1)
+                
+        return(output)
+        
+    def getEncoderOuts(self,code,index):
+        index=(index%4)
+        
+        begin=index*self.shapeOfCode
+        end=(index+1)*self.shapeOfCode
+        return(code[:,begin:end,:,:])#.clone())
+    
+        
+    def decode(self,code):
+
+        x=self.getEncoderOuts(code,-1)
+        for i, module in enumerate(self.up_convs):
+            before_pool = self.getEncoderOuts(code,-(i+2))
+            print(x.size())
+            x = module(before_pool, x)
+            #print(x.size())
+
+            #self.decoder_outs.append(x)
+        
+        # No softmax is used. This means you need to use
+        # nn.CrossEntropyLoss is your training script,
+        # as this module includes a softmax already.
+        x = self.conv_final(x)
+        return (x)
 
     def forward(self, x):
         encoder_outs = []
@@ -245,6 +292,9 @@ class intermediate(nn.Module):
         #print('code shape : ',x.size())
         for i, module in enumerate(self.up_convs):
             before_pool = encoder_outs[-(i+2)]
+            #print('before ', before_pool.size())
+            #print('x ', x.size())
+
             x = module(before_pool, x)
             #print(x.size())
 
@@ -324,23 +374,26 @@ class ModelAE(nn.Module):
         self.start_filts = start_filts
         self.depth = depth
 
+        self.shapeOfCode=self.start_filts*(2**(self.depth-1))
+        
+
         self.down_convs = []
         self.up_convs = []
         self.modelAEs=[]
 
         #random initialization
-        self.outs=888
+        outs=888
         # create the encoder pathway and add to a list
         for i in range(self.depth):
-            ins = self.in_channels if i == 0 else self.outs
-            self.outs = self.start_filts*(2**i)
+            ins = self.in_channels if i == 0 else outs
+            outs = self.start_filts*(2**i)
             pooling = True if i < depth-1 else False
 
-            down_conv = DownConv(ins, self.outs, pooling=pooling)
+            down_conv = DownConv(ins, outs, pooling=pooling)
             self.down_convs.append(down_conv)
             if i <self.depth-1:
-                tempModel = intermediate(output_channels=self.outs, in_channels=self.outs, depth=self.depth-i, 
-                start_filts=self.outs, up_mode='transpose', 
+                tempModel = intermediate(output_channels=outs, in_channels=outs, depth=self.depth-i, 
+                start_filts=outs, up_mode='transpose', 
                  merge_mode='concat')
                 self.modelAEs.append(tempModel)
        
@@ -348,13 +401,13 @@ class ModelAE(nn.Module):
         # create the decoder pathway and add to a list
         # - careful! decoding only requires depth-1 blocks
         for i in range(depth-1):
-            ins = self.outs
-            self.outs = ins // 2
-            up_conv = UpConv(ins, self.outs, up_mode=up_mode,
+            ins = outs
+            outs = ins // 2
+            up_conv = UpConv(ins, outs, up_mode=up_mode,
                 merge_mode=merge_mode)
             self.up_convs.append(up_conv)
 
-        self.conv_final = conv1x1(self.outs, self.output_channels)
+        self.conv_final = conv1x1(outs, self.output_channels)
 
         # add the list of modules to current module
         self.modelAEs = nn.ModuleList(self.modelAEs)
@@ -404,7 +457,36 @@ class ModelAE(nn.Module):
                 output=torch.cat((output,x),1)
                 
         return(output)
+        
+    def getEncoderOuts(self,code,index):
+        index=(index%4)
+        
+        begin=index*self.shapeOfCode
+        end=(index+1)*self.shapeOfCode
+        return(code[:,begin:end,:,:])#.clone())
+    
+        
+    def decode(self,code):
 
+        x=self.getEncoderOuts(code,-1)
+        for i, module in enumerate(self.up_convs):
+            before_pool = self.getEncoderOuts(code,-(i+2))
+            print(x.size())
+            x = module(before_pool, x)
+            #print(x.size())
+
+            #self.decoder_outs.append(x)
+        
+        # No softmax is used. This means you need to use
+        # nn.CrossEntropyLoss is your training script,
+        # as this module includes a softmax already.
+        x = self.conv_final(x)
+        return (x)
+
+    
+    
+    
+    
     def forward(self, x):
         encoder_outs = []
         
@@ -427,6 +509,8 @@ class ModelAE(nn.Module):
         #print('main code shape : ',x.size())
         for i, module in enumerate(self.up_convs):
             before_pool = encoder_outs[-(i+2)]
+            print('inside main AE, x : ',x.size())
+            print('and before : ', before_pool.size())
             x = module(before_pool, x)
             #print(x.size())
 
@@ -462,6 +546,9 @@ if __name__ == "__main__":
     y=model.encode(x)
     print('main code shape ', y.size())
     
+    
+    u=model.decode(y)
+    print('output of decoder ', u,size())
 #    LE=model.encoder_outs
 #    LD=model.decoder_outs
 #    print('original shape')

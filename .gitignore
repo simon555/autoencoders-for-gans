@@ -1,8 +1,9 @@
 #data
 datasets/
 results/*/models
-
-
+AutoEncoderForDomainTransfer/*/models
+featureGenerator/preTrainedModel.pt
+AutoencoderForDomainTransfer/preTrainedModel.pt
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
