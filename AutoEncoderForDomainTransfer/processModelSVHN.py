@@ -37,7 +37,7 @@ idxModel='MyDomainTransfer_mnist_svhn_Exp2'
 Epoch=141
 datasetA='mnist'
 datasetB='svhn'
-
+mode='mix'
     
 fileDirectory = "{}/".format(idxModel)
 
@@ -100,64 +100,133 @@ testSetA=getData(datasetA)
 testSetB=getData(datasetB)
 
 
+if mode=='mix':
+    for i in range(100):
+        
+        inputA, labels = testSetA[i]
+        inputB, labels =testSetB[i]
+        
+        imageA=Variable(inputA.unsqueeze(0))
+        imageB=Variable(inputB.unsqueeze(0))
     
-for i in range(100):
-    
-    inputA, labels = testSetA[i]
-    inputB, labels =testSetB[i]
-    
-    imageA=Variable(inputA.unsqueeze(0))
-    imageB=Variable(inputB.unsqueeze(0))
+        
+        codeA=the_model.encoderA(imageA)
+        codeA_INTER_B_fromA=the_model.encoderA_INTER_B(imageA)
+        
+        
+        codeB=the_model.encoderB(imageB)
+        codeA_INTER_B_fromB=the_model.encoderA_INTER_B(imageB)
+        
+        fakeBfromA=the_model.decoderA(codeB,codeA_INTER_B_fromB)
+        fakeAfromB=the_model.decoderB(codeA,codeA_INTER_B_fromA)
 
-    
-    codeA,codeA_INTER_B_fromA,reconstructionA,codeB,codeA_INTER_B_fromB,reconstructionB,auxCodeA,auxReconstructionA,auxCodeB,auxReconstructionB = the_model(imageA,imageB)
-    
-    imgInputA=imageA[0,:,:,:].cpu().data.numpy().transpose((1,2,0))
-    imgInputB=imageB[0,:,:,:].cpu().data.numpy().transpose((1,2,0))
-    
-    outputA=reconstructionA[0,:,:,:].cpu().data.numpy().transpose((1,2,0))
-    outputB=reconstructionB[0,:,:,:].cpu().data.numpy().transpose((1,2,0))
-
-
-    auxA=auxReconstructionA[0,:,:,:].cpu().data.numpy().transpose((1,2,0))
-    auxB=auxReconstructionB[0,:,:,:].cpu().data.numpy().transpose((1,2,0))
+        
+        
+        
+        imgInputA=imageA[0,:,:,:].cpu().data.numpy().transpose((1,2,0))
+        imgInputB=imageB[0,:,:,:].cpu().data.numpy().transpose((1,2,0))
+        
+        fakeA=fakeAfromB[0,:,:,:].cpu().data.numpy().transpose((1,2,0))
+        fakeB=fakeBfromA[0,:,:,:].cpu().data.numpy().transpose((1,2,0))
     
     
-    #print(imgInput.mean(),' ',imgInput.std(), ' ',imgInput.max(), ' ',imgInput.min()   )
-    print('image ', i)
-    pl.figure(figsize=(12,6))
-    
-   
-    pl.subplot(231)
-    pl.imshow(imgInputA)
-    pl.title('original image')
-    
-    pl.subplot(232)
-    pl.imshow(outputA)
-    pl.title("reconstructed image")
        
-    
-    pl.subplot(233)
-    pl.imshow(auxA)
-    pl.title("aux reconstruction image")
-    
-    pl.subplot(234)
-    pl.imshow(imgInputB)
-    pl.title('original image')
-    
-    pl.subplot(235)
-    pl.imshow(outputB)
-    pl.title("reconstructed image")
+        #print(imgInput.mean(),' ',imgInput.std(), ' ',imgInput.max(), ' ',imgInput.min()   )
+        print('image ', i)
+        pl.figure(figsize=(7,5))
+        
        
+        pl.subplot(231)
+        pl.imshow(imgInputA)
+        pl.title('original image')
+        
+        pl.subplot(232)
+        pl.imshow(imgInputB)
+        pl.title("original image")
+           
+        
+        pl.subplot(233)
+        pl.imshow(fakeA)
+        pl.title("fake image")
+        
+        pl.subplot(234)
+        pl.imshow(imgInputB)
+        pl.title('original image')
+        
+        pl.subplot(235)
+        pl.imshow(imgInputA)
+        pl.title("original image")
+           
+        
+        pl.subplot(236)
+        pl.imshow(fakeB)
+        pl.title("fake image")
+        
     
-    pl.subplot(236)
-    pl.imshow(auxB)
-    pl.title("aux reconstruction image")
+        
+        pl.legend()
+        
+        #pl.savefig('../results/{}/image{}'.format(idxModel,i))
+        pl.show()
     
-
+if mode=='classic':
+    for i in range(100):
+        
+        inputA, labels = testSetA[i]
+        inputB, labels =testSetB[i]
+        
+        imageA=Variable(inputA.unsqueeze(0))
+        imageB=Variable(inputB.unsqueeze(0))
     
-    pl.legend()
+        
+        codeA,codeA_INTER_B_fromA,reconstructionA,codeB,codeA_INTER_B_fromB,reconstructionB,auxCodeA,auxReconstructionA,auxCodeB,auxReconstructionB = the_model(imageA,imageB)
+        
+        imgInputA=imageA[0,:,:,:].cpu().data.numpy().transpose((1,2,0))
+        imgInputB=imageB[0,:,:,:].cpu().data.numpy().transpose((1,2,0))
+        
+        outputA=reconstructionA[0,:,:,:].cpu().data.numpy().transpose((1,2,0))
+        outputB=reconstructionB[0,:,:,:].cpu().data.numpy().transpose((1,2,0))
     
-    #pl.savefig('../results/{}/image{}'.format(idxModel,i))
-    pl.show()
-
+    
+        auxA=auxReconstructionA[0,:,:,:].cpu().data.numpy().transpose((1,2,0))
+        auxB=auxReconstructionB[0,:,:,:].cpu().data.numpy().transpose((1,2,0))
+        
+        
+        #print(imgInput.mean(),' ',imgInput.std(), ' ',imgInput.max(), ' ',imgInput.min()   )
+        print('image ', i)
+        pl.figure(figsize=(12,6))
+        
+       
+        pl.subplot(231)
+        pl.imshow(imgInputA)
+        pl.title('original image')
+        
+        pl.subplot(232)
+        pl.imshow(outputA)
+        pl.title("reconstructed image")
+           
+        
+        pl.subplot(233)
+        pl.imshow(auxA)
+        pl.title("aux reconstruction image")
+        
+        pl.subplot(234)
+        pl.imshow(imgInputB)
+        pl.title('original image')
+        
+        pl.subplot(235)
+        pl.imshow(outputB)
+        pl.title("reconstructed image")
+           
+        
+        pl.subplot(236)
+        pl.imshow(auxB)
+        pl.title("aux reconstruction image")
+        
+    
+        
+        pl.legend()
+        
+        #pl.savefig('../results/{}/image{}'.format(idxModel,i))
+        pl.show()
+    

@@ -120,14 +120,18 @@ class MyLoss(torch.nn.Module):
 
         
         
-    def forward(self,inputsA, inputsB,codeA,codeA_INTER_B_fromA,reconstructionA,
+    def forward(self,inputsA, inputsB,both,codeA,codeA_INTER_B_fromA,reconstructionA,
                 codeB,codeA_INTER_B_fromB,reconstructionB,
                 auxCodeA,auxReconstructionA,
-                auxCodeB,auxReconstructionB):
+                auxCodeB,auxReconstructionB,
+                auxCodeA_UNION_B,auxReconstrutionA_UNION_B):
         output=self.metrics(inputsA,reconstructionA)
         output+=self.metrics(inputsB,reconstructionB)
         output+=self.metrics(inputsA,auxReconstructionA)
         output+=self.metrics(inputsB,auxReconstructionB)
+        
+        output+=self.metrics(both,auxReconstrutionA_UNION_B)
+        
         output+=self.metrics(codeA_INTER_B_fromA,auxCodeA)
         output+=self.metrics(codeA_INTER_B_fromB,auxCodeB)
         output+=torch.exp(-self.metrics(codeA_INTER_B_fromA,codeA))
@@ -142,17 +146,23 @@ def metrics(inp, target):
     return torch.mean(torch.abs(inp-target))
 #metrics = mse_loss.cuda() 
   
-def criterion(inputsA, inputsB,
+def criterion(inputsA, inputsB, both,
               codeA,codeA_INTER_B_fromA,reconstructionA,
               codeB,codeA_INTER_B_fromB,reconstructionB,
               auxCodeA,auxReconstructionA,
-              auxCodeB,auxReconstructionB):
+              auxCodeB,auxReconstructionB,
+              auxCodeA_UNION_B,auxReconstrutionA_UNION_B):
     output=metrics(inputsA,reconstructionA)
     output+=metrics(inputsB,reconstructionB)
     output+=metrics(inputsA,auxReconstructionA)
-    output+=metrics(inputsB,auxReconstructionB)
-    output+=metrics(codeA_INTER_B_fromA,auxCodeA)
-    output+=metrics(codeA_INTER_B_fromB,auxCodeB)
+    output+=metrics(inputsB,auxReconstructionB)    
+    output+=metrics(both,auxReconstrutionA_UNION_B)
+
+    output+=metrics(auxCodeA_UNION_B,codeA_INTER_B_fromA)
+    output+=metrics(auxCodeA_UNION_B,codeA_INTER_B_fromB)
+
+    #output+=metrics(codeA_INTER_B_fromA,auxCodeA)
+    #output+=metrics(codeA_INTER_B_fromB,auxCodeB)
     output+=torch.exp(-metrics(codeA_INTER_B_fromA,codeA))
     output+=torch.exp(-metrics(codeA_INTER_B_fromB,codeB))
     
@@ -379,6 +389,7 @@ if __name__=='__main__':
             # wrap them in Variable
             inputsA = Variable(inputsA.cuda())
             inputsB = Variable(inputsB.cuda())
+            both=torch.cat([inputsA,inputsB],dim=0)
 
     
             # zero the parameter gradients
@@ -387,13 +398,15 @@ if __name__=='__main__':
             # forward + backward + optimize
             (codeA,codeA_INTER_B_fromA,reconstructionA,codeB,codeA_INTER_B_fromB,reconstructionB,
             auxCodeA,auxReconstructionA,
-            auxCodeB,auxReconstructionB) = model(inputsA,inputsB)
+            auxCodeB,auxReconstructionB,
+            auxCodeA_UNION_B,auxReconstrutionA_UNION_B) = model(inputsA,inputsB,both)
                 
                 
-            loss = criterion(inputsA, inputsB,codeA,codeA_INTER_B_fromA,reconstructionA,
+            loss = criterion(inputsA, inputsB,both,codeA,codeA_INTER_B_fromA,reconstructionA,
                 codeB,codeA_INTER_B_fromB,reconstructionB,
                 auxCodeA,auxReconstructionA,
-                auxCodeB,auxReconstructionB)
+                auxCodeB,auxReconstructionB,
+                auxCodeA_UNION_B,auxReconstrutionA_UNION_B)
             
             
             loss.backward()
@@ -417,18 +430,20 @@ if __name__=='__main__':
             # wrap them in Variable
             inputsA = Variable(inputsA.cuda())
             inputsB = Variable(inputsB.cuda())
-   
+            both=torch.cat([inputsA,inputsB],dim=0)
          
     
             (codeA,codeA_INTER_B_fromA,reconstructionA,codeB,codeA_INTER_B_fromB,reconstructionB,
             auxCodeA,auxReconstructionA,
-            auxCodeB,auxReconstructionB) = model(inputsA,inputsB)
+            auxCodeB,auxReconstructionB,
+            auxCodeA_UNION_B,auxReconstrutionA_UNION_B) = model(inputsA,inputsB,both)
                 
                 
-            loss = criterion(inputsA, inputsB,codeA,codeA_INTER_B_fromA,reconstructionA,
+            loss = criterion(inputsA, inputsB,both,codeA,codeA_INTER_B_fromA,reconstructionA,
                 codeB,codeA_INTER_B_fromB,reconstructionB,
                 auxCodeA,auxReconstructionA,
-                auxCodeB,auxReconstructionB)
+                auxCodeB,auxReconstructionB,
+                auxCodeA_UNION_B,auxReconstrutionA_UNION_B)
             
             
             

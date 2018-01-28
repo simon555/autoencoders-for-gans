@@ -771,11 +771,14 @@ class Model(nn.Module):
         self.auxEncoderB=Encoder()
         self.auxDecoderB=Decoder()
         
+        self.auxEncoderA_UNION_B=Encoder()
+        self.auxDecoderA_UNION_B=Decoder()
+        
         self.useCuda=torch.cuda.is_available()
         
       
 
-    def forward(self, A, B):
+    def forward(self, A, B,both):
         
         
         codeA=self.encoderA(A)        
@@ -792,12 +795,15 @@ class Model(nn.Module):
         auxCodeB=self.auxEncoderB(B)
         auxReconstructionB=self.auxDecoderB(auxCodeB)
         
+        auxCodeA_UNION_B=self.auxEncoderA_UNION_B(both)
+        auxReconstrutionA_UNION_B=self.auxDecoderA_UNION_B(auxCodeA_UNION_B)
         
         
         return (codeA,codeA_INTER_B_fromA,reconstructionA,
                 codeB,codeA_INTER_B_fromB,reconstructionB,
                 auxCodeA,auxReconstructionA,
-                auxCodeB,auxReconstructionB)
+                auxCodeB,auxReconstructionB,
+                auxCodeA_UNION_B,auxReconstrutionA_UNION_B)
 
     
 
