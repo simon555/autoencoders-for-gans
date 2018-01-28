@@ -138,7 +138,24 @@ class MyLoss(torch.nn.Module):
         return (output)
     
     
-criterion = MyLoss().cuda()
+metrics = torch.nn.L1Loss().cuda() 
+  
+def criterion(inputsA, inputsB,
+              codeA,codeA_INTER_B_fromA,reconstructionA,
+              codeB,codeA_INTER_B_fromB,reconstructionB,
+              auxCodeA,auxReconstructionA,
+              auxCodeB,auxReconstructionB):
+    output=metrics(inputsA,reconstructionA)
+    output+=metrics(inputsB,reconstructionB)
+    output+=metrics(inputsA,auxReconstructionA)
+    output+=metrics(inputsB,auxReconstructionB)
+    output+=metrics(codeA_INTER_B_fromA,auxCodeA)
+    output+=metrics(codeA_INTER_B_fromB,auxCodeB)
+    output+=torch.exp(-metrics(codeA_INTER_B_fromA,codeA))
+    output+=torch.exp(-metrics(codeA_INTER_B_fromB,codeB))
+    
+    return(output)
+
 
 #if choiceLoss=='L1Loss':
 #    criterion=torch.nn.L1Loss().cuda()    
