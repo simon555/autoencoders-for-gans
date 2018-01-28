@@ -70,8 +70,8 @@ the_model.cpu()
 
     
 def adaptToRGB(img):
-    return(torch.cat([img,img,img],dim=0))
-
+    output=torch.cat([img,img,img],dim=0)
+    return(output)
 
 transform = transforms.Compose(
         [transforms.ToTensor(),transforms.Lambda(rescale)])
@@ -109,6 +109,9 @@ if mode=='mix':
         imageA=Variable(inputA.unsqueeze(0))
         imageB=Variable(inputB.unsqueeze(0))
     
+        imageA=F.pad(imageA,(2,2,2,2))
+        #imageB=F.pad(imageB,(2,2,2,2))
+        
         
         codeA=the_model.encoderA(imageA)
         codeA_INTER_B_fromA=the_model.encoderA_INTER_B(imageA)

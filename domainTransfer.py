@@ -389,6 +389,9 @@ if __name__=='__main__':
             # wrap them in Variable
             inputsA = Variable(inputsA.cuda())
             inputsB = Variable(inputsB.cuda())
+            
+            
+            inputsA=F.pad(inputsA,(2,2,2,2))
             both=torch.cat([inputsA,inputsB],dim=0)
 
     
@@ -430,8 +433,9 @@ if __name__=='__main__':
             # wrap them in Variable
             inputsA = Variable(inputsA.cuda())
             inputsB = Variable(inputsB.cuda())
-            both=torch.cat([inputsA,inputsB],dim=0)
-         
+            
+            inputsA=F.pad(inputsA,(2,2,2,2))
+            both=torch.cat([inputsA,inputsB],dim=0)         
     
             (codeA,codeA_INTER_B_fromA,reconstructionA,codeB,codeA_INTER_B_fromB,reconstructionB,
             auxCodeA,auxReconstructionA,
