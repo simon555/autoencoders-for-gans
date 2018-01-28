@@ -56,7 +56,7 @@ idxModel='Unet_Modified'
 choiceLoss='L1Loss'
 dataset='svhn'
 depth=4
-lastActivation='relu'
+lastActivation='sigmoid'
 
 
 

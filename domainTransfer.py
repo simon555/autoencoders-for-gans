@@ -57,7 +57,7 @@ choiceLoss='L1Loss'
 datasetA='mnist'
 datasetB='svhn'
 depth=2
-lastActivation='relu'
+lastActivation='sigmoid'
 
 
 
@@ -416,7 +416,7 @@ if __name__=='__main__':
             #print('shape ', inputs.size()) 
             # wrap them in Variable
             inputsA = Variable(inputsA.cuda())
-            inputsB = Variable(inputsA.cuda())
+            inputsB = Variable(inputsB.cuda())
    
          
     
