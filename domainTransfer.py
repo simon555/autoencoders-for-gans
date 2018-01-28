@@ -137,8 +137,11 @@ class MyLoss(torch.nn.Module):
        
         return (output)
     
+
+def metrics(inp, target):
+    return torch.abs(inp-target)
     
-metrics = torch.nn.L1Loss().cuda() 
+#metrics = mse_loss.cuda() 
   
 def criterion(inputsA, inputsB,
               codeA,codeA_INTER_B_fromA,reconstructionA,
