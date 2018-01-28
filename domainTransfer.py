@@ -139,8 +139,7 @@ class MyLoss(torch.nn.Module):
     
 
 def metrics(inp, target):
-    return torch.abs(inp-target)
-    
+    return torch.mean(torch.abs(inp-target))
 #metrics = mse_loss.cuda() 
   
 def criterion(inputsA, inputsB,
