@@ -157,9 +157,12 @@ def criterion(inputsA, inputsB, both,
     output+=metrics(inputsA,auxReconstructionA)
     output+=metrics(inputsB,auxReconstructionB)    
     output+=metrics(both,auxReconstrutionA_UNION_B)
+    
+    output+=metrics(codeA_INTER_B_fromA,codeB)
+    output+=metrics(codeA_INTER_B_fromB,codeA)
 
-    temp=torch.cat([codeA_INTER_B_fromA,codeA_INTER_B_fromB],dim=0)
-    output+=metrics(auxCodeA_UNION_B,temp)
+    #temp=torch.cat([codeA_INTER_B_fromA,codeA_INTER_B_fromB],dim=0)
+    #output+=metrics(auxCodeA_UNION_B,temp)
     
 
     #output+=metrics(codeA_INTER_B_fromA,auxCodeA)

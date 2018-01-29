@@ -33,8 +33,8 @@ def rescale(img):
     return((img-mi)/(ma-mi))
     
     
-idxModel='MyDomainTransfer_mnist_svhn_Exp2'
-Epoch=141
+idxModel='MyDomainTransfer_mnist_svhn_Exp11'
+Epoch=181
 datasetA='mnist'
 datasetB='svhn'
 mode='mix'
@@ -50,7 +50,7 @@ if not os.path.exists(filename):
     if not os.path.exists(fileDirectory+'models/'):
         os.makedirs(fileDirectory+'models/')
     
-    commandBash='pscp sebbaghs@elisa2.iro.umontreal.ca:/data/milatmp1/sebbaghs/autoencoders-for-gans/results/{}/models/Epoch{}.pt'.format(idxModel,Epoch)
+    commandBash='pscp sebbaghs@elisa2.iro.umontreal.ca:/data/milatmp1/sebbaghs/autoencoders-for-gans/AutoEncoderForDomainTransfer/{}/models/Epoch{}.pt'.format(idxModel,Epoch)
     commandBash+=' {}'.format(filename)
     
     check=os.system(commandBash)
@@ -110,6 +110,7 @@ if mode=='mix':
         imageB=Variable(inputB.unsqueeze(0))
     
         imageA=F.pad(imageA,(2,2,2,2))
+        both=torch.cat([imageA,imageB],dim=0)  
         #imageB=F.pad(imageB,(2,2,2,2))
         
         
@@ -121,7 +122,7 @@ if mode=='mix':
         codeA_INTER_B_fromB=the_model.encoderA_INTER_B(imageB)
         
         fakeBfromA=the_model.decoderA(codeB,codeA_INTER_B_fromB)
-        fakeAfromB=the_model.decoderB(codeA,codeA_INTER_B_fromA)
+        fakeAfromB=the_model.decoderA(codeA,codeA_INTER_B_fromA)
 
         
         
@@ -232,4 +233,16 @@ if mode=='classic':
         
         #pl.savefig('../results/{}/image{}'.format(idxModel,i))
         pl.show()
+    
+
+temp=imageA
+for i in range(200):
+    codeA=the_model.encoderB(imageA)
+    codeA_INTER_B_fromA=the_model.encoderA_INTER_B(temp)
+
+    temp=the_model.decoderB(codeA,codeA_INTER_B_fromA)
+
+    out=imageA[0,:,:,:].cpu().data.numpy().transpose((1,2,0))
+    pl.imshow(out)
+    pl.show()
     
