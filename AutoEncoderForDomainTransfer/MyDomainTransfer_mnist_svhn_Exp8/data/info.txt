@@ -1,0 +1,15 @@
+experience done on : 28/01/2018 at 17:09:09  
+ NbatchTrain           128 
+       Nplot             1 
+learningRate        0.0001 
+    datasetA         mnist 
+       Nsave            20 
+       depth             2 
+    datasetB          svhn 
+  NbatchTest           128 
+    idxModel  MyDomainTransfer 
+lastActivation       sigmoid 
+  choiceLoss        L1Loss 
+ Nexperience             1 
+     Nepochs         10000 
+epoch,trainLoss,testLoss  

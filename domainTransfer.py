@@ -57,7 +57,7 @@ choiceLoss='L1Loss'
 datasetA='mnist'
 datasetB='svhn'
 depth=2
-lastActivation='relu'
+lastActivation='sigmoid'
 
 
 
@@ -120,14 +120,18 @@ class MyLoss(torch.nn.Module):
 
         
         
-    def forward(self,inputsA, inputsB,codeA,codeA_INTER_B_fromA,reconstructionA,
+    def forward(self,inputsA, inputsB,both,codeA,codeA_INTER_B_fromA,reconstructionA,
                 codeB,codeA_INTER_B_fromB,reconstructionB,
                 auxCodeA,auxReconstructionA,
-                auxCodeB,auxReconstructionB):
+                auxCodeB,auxReconstructionB,
+                auxCodeA_UNION_B,auxReconstrutionA_UNION_B):
         output=self.metrics(inputsA,reconstructionA)
         output+=self.metrics(inputsB,reconstructionB)
         output+=self.metrics(inputsA,auxReconstructionA)
         output+=self.metrics(inputsB,auxReconstructionB)
+        
+        output+=self.metrics(both,auxReconstrutionA_UNION_B)
+        
         output+=self.metrics(codeA_INTER_B_fromA,auxCodeA)
         output+=self.metrics(codeA_INTER_B_fromB,auxCodeB)
         output+=torch.exp(-self.metrics(codeA_INTER_B_fromA,codeA))
@@ -137,8 +141,37 @@ class MyLoss(torch.nn.Module):
        
         return (output)
     
+
+def metrics(inp, target):
+    return torch.mean(torch.abs(inp-target))
+#metrics = mse_loss.cuda() 
+  
+def criterion(inputsA, inputsB, both,
+              codeA,codeA_INTER_B_fromA,reconstructionA,
+              codeB,codeA_INTER_B_fromB,reconstructionB,
+              auxCodeA,auxReconstructionA,
+              auxCodeB,auxReconstructionB,
+              auxCodeA_UNION_B,auxReconstrutionA_UNION_B):
+    output=metrics(inputsA,reconstructionA)
+    output+=metrics(inputsB,reconstructionB)
+    output+=metrics(inputsA,auxReconstructionA)
+    output+=metrics(inputsB,auxReconstructionB)    
+    output+=metrics(both,auxReconstrutionA_UNION_B)
     
-criterion = MyLoss().cuda()
+    output+=metrics(codeA_INTER_B_fromA,codeB)
+    output+=metrics(codeA_INTER_B_fromB,codeA)
+
+    #temp=torch.cat([codeA_INTER_B_fromA,codeA_INTER_B_fromB],dim=0)
+    #output+=metrics(auxCodeA_UNION_B,temp)
+    
+
+    #output+=metrics(codeA_INTER_B_fromA,auxCodeA)
+    #output+=metrics(codeA_INTER_B_fromB,auxCodeB)
+    output+=torch.exp(-metrics(codeA_INTER_B_fromA,codeA))
+    output+=torch.exp(-metrics(codeA_INTER_B_fromB,codeB))
+    
+    return(output)
+
 
 #if choiceLoss=='L1Loss':
 #    criterion=torch.nn.L1Loss().cuda()    
@@ -152,7 +185,7 @@ def rescale(img):
     return(((img-mi)/(ma-mi)-0)*1)
     
 def adaptToRGB(img):
-    return(torch.cat([img,img,img],dim=1))
+    return(torch.cat([img,img,img],dim=0))
        
    
     
@@ -187,14 +220,14 @@ def getData(dataset):
         
     elif dataset == "mnist":
         transform = transforms.Compose(
-        [transforms.ToTensor(),transforms.Lambda(rescale)])
+        [transforms.ToTensor(),transforms.Lambda(rescale),transforms.Lambda(adaptToRGB)])
         
-        trainset = torchvision.datasets.CIFAR10(root='./datasets/MNIST', train=True,
+        trainset = torchvision.datasets.MNIST(root='./datasets/MNIST', train=True,
                                             download=True, transform=transform)
         trainloader = torch.utils.data.DataLoader(trainset, batch_size=NbatchTrain,
                                               shuffle=True, num_workers=0)
 
-        testset = torchvision.datasets.CIFAR10(root='./datasets/MNIST', train=False,
+        testset = torchvision.datasets.MNIST(root='./datasets/MNIST', train=False,
                                            download=True, transform=transform)
         testloader = torch.utils.data.DataLoader(testset, batch_size=NbatchTest,
                                              shuffle=True, num_workers=0,drop_last=True)
@@ -360,6 +393,10 @@ if __name__=='__main__':
             # wrap them in Variable
             inputsA = Variable(inputsA.cuda())
             inputsB = Variable(inputsB.cuda())
+            
+            
+            inputsA=F.pad(inputsA,(2,2,2,2))
+            both=torch.cat([inputsA,inputsB],dim=0)
 
     
             # zero the parameter gradients
@@ -368,13 +405,15 @@ if __name__=='__main__':
             # forward + backward + optimize
             (codeA,codeA_INTER_B_fromA,reconstructionA,codeB,codeA_INTER_B_fromB,reconstructionB,
             auxCodeA,auxReconstructionA,
-            auxCodeB,auxReconstructionB) = model(inputsA,inputsB)
+            auxCodeB,auxReconstructionB,
+            auxCodeA_UNION_B,auxReconstrutionA_UNION_B) = model(inputsA,inputsB,both)
                 
-                
-            loss = criterion(inputsA, inputsB,codeA,codeA_INTER_B_fromA,reconstructionA,
+            
+            loss = criterion(inputsA, inputsB,both,codeA,codeA_INTER_B_fromA,reconstructionA,
                 codeB,codeA_INTER_B_fromB,reconstructionB,
                 auxCodeA,auxReconstructionA,
-                auxCodeB,auxReconstructionB)
+                auxCodeB,auxReconstructionB,
+                auxCodeA_UNION_B,auxReconstrutionA_UNION_B)
             
             
             loss.backward()
@@ -397,19 +436,22 @@ if __name__=='__main__':
             #print('shape ', inputs.size()) 
             # wrap them in Variable
             inputsA = Variable(inputsA.cuda())
-            inputsB = Variable(inputsA.cuda())
-   
-         
+            inputsB = Variable(inputsB.cuda())
+            
+            inputsA=F.pad(inputsA,(2,2,2,2))
+            both=torch.cat([inputsA,inputsB],dim=0)         
     
             (codeA,codeA_INTER_B_fromA,reconstructionA,codeB,codeA_INTER_B_fromB,reconstructionB,
             auxCodeA,auxReconstructionA,
-            auxCodeB,auxReconstructionB) = model(inputsA,inputsB)
+            auxCodeB,auxReconstructionB,
+            auxCodeA_UNION_B,auxReconstrutionA_UNION_B) = model(inputsA,inputsB,both)
                 
                 
-            loss = criterion(inputsA, inputsB,codeA,codeA_INTER_B_fromA,reconstructionA,
+            loss = criterion(inputsA, inputsB,both,codeA,codeA_INTER_B_fromA,reconstructionA,
                 codeB,codeA_INTER_B_fromB,reconstructionB,
                 auxCodeA,auxReconstructionA,
-                auxCodeB,auxReconstructionB)
+                auxCodeB,auxReconstructionB,
+                auxCodeA_UNION_B,auxReconstrutionA_UNION_B)
             
             
             
