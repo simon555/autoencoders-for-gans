@@ -33,6 +33,11 @@ from Generators import Generator_ConvCifar
 from Discriminators import Discriminator_ConvCifar
 from reg_loss import gan_loss
 
+def denorm(x):
+    out = (x+1)/2
+    return out.clamp(0,1)
+
+
 def rescale(img):
     mi=img.min()
     ma=img.max()
@@ -55,7 +60,9 @@ D = D.cuda()
 d_optimizer = torch.optim.Adam(D.parameters(), lr=0.0001, betas=(0.0,0.99))
 g_optimizer = torch.optim.Adam(list(G.parameters()), lr=0.0001, betas=(0.0,0.99))
 
-transform = transforms.Compose([transforms.ToTensor(),transforms.Lambda(rescale)])
+#transform = transforms.Compose([transforms.ToTensor(),transforms.Lambda(rescale)])
+transform = transforms.Compose([transforms.ToTensor(), transforms.Normalize(mean=(0.5,0.5,0.5), std=(0.5,0.5,0.5))])
+
 
 model = generateFeatures.ModelAE()
 
@@ -69,26 +76,28 @@ index = Variable(torch.from_numpy(np.array(1)))
 for i, data in enumerate(trainloader, 0):
     image, label = data
     image = to_var(image)
-    h0 = model.getFeatureAtStep(0,image)
-    h1 = model.getFeatureAtStep(1,image)
-    h2 = model.getFeatureAtStep(2,image)
-    h3 = model.getFeatureAtStep(3,image)
-    h4 = model.getFeatureAtStep(4,image)
+    #h0 = model.getFeatureAtStep(0,image)
+    h_128_16_16_real = model.getFeatureAtStep(1,image)
+    #h2 = model.getFeatureAtStep(2,image)
+    #h3 = model.getFeatureAtStep(3,image)
+    #h4 = model.getFeatureAtStep(4,image)
+
+    print "size of real get features", h_128_16_16_real.size()
 
     z = to_var(torch.randn(NbatchTrain, 64))
 
-    genx = G(z)
+    genx,h_128_16_16_gen = G(z)
 
-    D_gen = D(genx)
-    D_real = D(image)
+    D_gen = D(genx,h_128_16_16_gen*0.0)
+    D_real = D(image,h_128_16_16_real*0.0)
 
-    d_loss_gen = gan_loss(pre_sig=D_gen, real=False, D=True, use_penalty=use_penalty,grad_inp=genx,gamma=0.1)
+    d_loss_gen = gan_loss(pre_sig=D_gen, real=False, D=True, use_penalty=use_penalty,grad_inp=genx,gamma=0.1) + gan_loss(pre_sig=D_gen, real=False, D=True, use_penalty=use_penalty,grad_inp=h_128_16_16_gen,gamma=0.1)
 
     D.zero_grad()
     d_loss_gen.backward(retain_graph=True)
     d_optimizer.step()
 
-    d_loss_real = gan_loss(pre_sig=D_real, real=True, D=True, use_penalty=use_penalty,grad_inp=image,gamma=0.1)
+    d_loss_real = gan_loss(pre_sig=D_real, real=True, D=True, use_penalty=use_penalty,grad_inp=image,gamma=0.1) + gan_loss(pre_sig=D_real, real=True, D=True, use_penalty=use_penalty,grad_inp=h_128_16_16_real,gamma=0.1)
     D.zero_grad()
     d_loss_real.backward(retain_graph=True)
     d_optimizer.step()
@@ -100,13 +109,16 @@ for i, data in enumerate(trainloader, 0):
     g_loss_gen.backward()
     g_optimizer.step()
 
-    print "h0", h0.size()
-    print "h1", h1.size()
-    print "h2", h2.size()
-    print "h3", h3.size()
-    print "h4", h4.size()
+    #print "h0", h0.size()
+    #print "h1", h1.size()
+    #print "h2", h2.size()
+    #print "h3", h3.size()
+    #print "h4", h4.size()
 
-
+    if i % 5 == 0:
+        print "saving images!"
+        save_image(denorm(genx.data), 'plots/image_gen.png')
+        save_image(denorm(image.data), 'plots/image_real.png')
 
 
 

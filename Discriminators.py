@@ -106,17 +106,6 @@ class Discriminator_ConvCifar(nn.Module):
     def __init__(self, batch_size, nz):
         super(Discriminator_ConvCifar, self).__init__()
         self.batch_size = batch_size
-        self.zo2 = nn.Sequential(
-            nn.Linear(nz, 512),
-            nn.LeakyReLU(0.2),
-            nn.Linear(512, 256*8*8),
-            nn.LeakyReLU(0.2))
-    
-        self.zo3 = nn.Sequential(
-            nn.Linear(nz, 512),
-            nn.LeakyReLU(0.2),
-            nn.Linear(512, 512*4*4),
-            nn.LeakyReLU(0.2))
 
         self.l1 = nn.Sequential(
             nn.Conv2d(3, 128, kernel_size=5, padding=2, stride=1),
@@ -129,20 +118,25 @@ class Discriminator_ConvCifar(nn.Module):
             nn.Conv2d(256, 256, kernel_size=5, padding=2, stride=2),
             nn.LeakyReLU(0.2))
         self.l3 = nn.Sequential(
-            nn.Conv2d(256, 512, kernel_size=5, padding=2, stride=1),
+            nn.Conv2d(256, 256, kernel_size=5, padding=2, stride=1),
             nn.LeakyReLU(0.2),
-            nn.Conv2d(512, 512, kernel_size=5, padding=2, stride=2),
+            nn.Conv2d(256, 512, kernel_size=5, padding=2, stride=2),
             nn.LeakyReLU(0.2))
 
         self.l_end = nn.Sequential(
             nn.Conv2d(512, 1, kernel_size=5, padding=2, stride=2))
 
-    def forward(self, x):
+    def forward(self, x, h_128_16_16):
         #zo2 = self.zo2(z).view(self.batch_size,256,8,8) #goes to 256x8x8
         #zo3 = self.zo3(z).view(self.batch_size,512,4,4)
 
+        
+
         out = self.l1(x)
-        out = self.l2(out)
+
+        print out.size(), h_128_16_16.size()
+
+        out = self.l2(out + h_128_16_16)
         out = out
         out = self.l3(out)
         out = out

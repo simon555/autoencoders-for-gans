@@ -47,20 +47,20 @@ class Generator_ConvCifar(nn.Module):
         self.l4 = nn.Sequential(
             nn.LeakyReLU(0.2),
             nn.Upsample(scale_factor=2),
-            nn.Conv2d(128, 64, kernel_size=5, padding=2, stride=1))
+            nn.Conv2d(128, 128, kernel_size=5, padding=2, stride=1))
 
-        self.bn3 = nn.BatchNorm2d(64)
+        self.bn3 = nn.BatchNorm2d(128)
 
         self.l5 = nn.Sequential(
             nn.LeakyReLU(0.2),
             nn.Upsample(scale_factor=2),
-            nn.Conv2d(64, 32, kernel_size=5, padding=2, stride=1))
+            nn.Conv2d(128, 64, kernel_size=5, padding=2, stride=1))
 
-        self.bn4 = nn.BatchNorm2d(32)
+        self.bn4 = nn.BatchNorm2d(64)
 
         self.l6 = nn.Sequential(
             nn.LeakyReLU(0.2),
-            nn.Conv2d(32, 3, kernel_size=5, padding=2, stride=1),
+            nn.Conv2d(64, 3, kernel_size=5, padding=2, stride=1),
             nn.Tanh())
 
     def forward(self, z, step=0):
@@ -68,18 +68,18 @@ class Generator_ConvCifar(nn.Module):
         out = self.l1(z)
         out = out.view(self.batch_size,512,4,4)
         out = self.l2(out)
-        out = self.bn1(out)
-        out = self.l3(out)
-        out = self.bn2(out)
-        out = self.l4(out)
-        out = self.bn3(out)
-        out = self.l5(out)
-        out = self.bn4(out)
+        h2 = self.bn1(out)
+        out = self.l3(h2)
+        h3 = self.bn2(out)
+        h4l = self.l4(h3)
+        h4 = self.bn3(h4l)
+        h5l = self.l5(h4)
+        out = self.bn4(h5l)
         out = self.l6(out)
         
         print "gen size", out.size()
         
-        return out
+        return out, h4l
 
 #Returns 96x128
 #3x4 -> 6x8 -> 12x16 -> 24x32 -> 48x64 -> 96x128
