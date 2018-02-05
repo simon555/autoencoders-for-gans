@@ -157,12 +157,12 @@ if __name__=='__main__':
                                              shuffle=True, num_workers=0,drop_last=True)
         
     elif dataset == "mnist":
-        trainset = torchvision.datasets.CIFAR10(root='./datasets/MNIST', train=True,
+        trainset = torchvision.datasets.MNIST(root='./datasets/MNIST', train=True,
                                             download=True, transform=transform)
         trainloader = torch.utils.data.DataLoader(trainset, batch_size=NbatchTrain,
                                               shuffle=True, num_workers=0)
 
-        testset = torchvision.datasets.CIFAR10(root='./datasets/MNIST', train=False,
+        testset = torchvision.datasets.MNIST(root='./datasets/MNIST', train=False,
                                            download=True, transform=transform)
         testloader = torch.utils.data.DataLoader(testset, batch_size=NbatchTest,
                                              shuffle=True, num_workers=0,drop_last=True)
@@ -334,6 +334,7 @@ if __name__=='__main__':
 
         #save the model
         if epoch%Nsave==0:
+            print("saving to model file", directoryModel+'/Epoch{}.pt'.format(epoch+1))
             torch.save(model.state_dict(),directoryModel+'/Epoch{}.pt'.format(epoch+1))
     #final save
     torch.save(model.state_dict(),directoryModel+'Epoch{}Final.pt'.format(epoch+1))
