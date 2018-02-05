@@ -334,6 +334,7 @@ if __name__=='__main__':
 
         #save the model
         if epoch%Nsave==0:
+            print("saving to model file", directoryModel+'/Epoch{}.pt'.format(epoch+1))
             torch.save(model.state_dict(),directoryModel+'/Epoch{}.pt'.format(epoch+1))
     #final save
     torch.save(model.state_dict(),directoryModel+'Epoch{}Final.pt'.format(epoch+1))
