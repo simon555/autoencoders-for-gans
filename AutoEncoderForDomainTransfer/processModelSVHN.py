@@ -121,7 +121,7 @@ if mode=='mix':
         codeB=the_model.encoderB(imageB)
         codeA_INTER_B_fromB=the_model.encoderA_INTER_B(imageB)
         
-        fakeBfromA=the_model.decoderA(codeB,codeA_INTER_B_fromB)
+        fakeBfromA=the_model.decoderB(codeB,codeA_INTER_B_fromB)
         fakeAfromB=the_model.decoderA(codeA,codeA_INTER_B_fromA)
 
         
