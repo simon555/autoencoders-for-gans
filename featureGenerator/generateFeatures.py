@@ -214,7 +214,8 @@ class ModelAE(nn.Module):
         
         print('reload pre-trained model')
         
-        filename='preTrainedModel.pt'
+        #filename='preTrainedModel.pt'
+        filename="/u/lambalex/DeepLearning/autoencoders-for-gans/results/Unet_Modified_svhn_Exp7/models//Epoch21.pt"
         self.load_state_dict(torch.load(filename))
 
 
