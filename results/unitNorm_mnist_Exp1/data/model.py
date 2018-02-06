@@ -73,7 +73,7 @@ class myLinear(nn.Module):
             self.bias.data.uniform_(-stdv, stdv)
 
     def forward(self, input):
-        return F.linear(input, self.weight, self.bias)
+        return F.linear(input, self.weight/self.weight.norm(2), self.bias)
 
     def __repr__(self):
         return self.__class__.__name__ + '(' \
@@ -117,11 +117,10 @@ class Model(nn.Module):
 
 
     def forward(self, image):
-        image=image.view(-1,self.inputChannel)
-        image = F.relu(self.layer1(image))
-        image = F.relu(self.layer2(image))
-        image = F.relu(self.layer3(image))
-        image = F.relu(self.layer4(image))
+        image = self.layer1(image)
+        image = self.layer2(image)
+        image = self.layer3(image)
+        image = self.layer4(image)
         image = self.layer5(image)
 
         return (image)

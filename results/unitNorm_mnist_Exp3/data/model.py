@@ -73,7 +73,7 @@ class myLinear(nn.Module):
             self.bias.data.uniform_(-stdv, stdv)
 
     def forward(self, input):
-        return F.linear(input, self.weight, self.bias)
+        return F.linear(input, self.weight/self.weight.norm(2), self.bias)
 
     def __repr__(self):
         return self.__class__.__name__ + '(' \

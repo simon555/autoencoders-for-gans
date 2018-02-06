@@ -44,6 +44,7 @@ import local_models
 torch.manual_seed(1)
 
 # default values Nepochs= 10000
+Nepochs=50
 NbatchTrain = 128
 NbatchTest = 128
 Nplot = 1
@@ -182,8 +183,8 @@ if __name__ == '__main__':
 
     if idxModel == 'MyDeep':
         model = modelFactory.ModelAE(depth=depth, lastActivation=lastActivation)
-    else:
-        model = modelFactory.ModelAE()
+    
+    
 
     model=modelFactory.Model()
     print('model loaded')

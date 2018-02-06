@@ -1,0 +1,14 @@
+experience done on : 06/02/2018 at 00:33:39  
+     Nepochs            50 
+       Nplot             1 
+  NbatchTest           128 
+  choiceLoss  CrossEntropy 
+     dataset         mnist 
+learningRate         0.001 
+       depth             4 
+    idxModel      unitNorm 
+ NbatchTrain           128 
+ Nexperience             1 
+lastActivation       sigmoid 
+       Nsave            10 
+epoch,trainLoss,testLoss  
