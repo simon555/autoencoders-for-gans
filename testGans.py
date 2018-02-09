@@ -89,9 +89,9 @@ class Discriminator(nn.Module):
         self.dis1=nn.Conv2d(1,8,3,stride=1)
         self.dis2=nn.Conv2d(8,16,3,stride=2)
         self.dis3=nn.Conv2d(16,32,3,stride=1)
-        self.dis4=nn.Conv2d(32,16,3,stride=2)
-        self.dis5=nn.Conv2d(16,8,3,stride=1)   
-        self.dis6=nn.Linear(32,1)
+        self.dis4=nn.Conv2d(32,64,3,stride=2)
+        self.dis5=nn.Conv2d(64,128,3,stride=2)   
+        self.dis6=nn.Linear(256,1)
         self.useCuda=torch.cuda.is_available()
         
         if self.useCuda:
@@ -109,8 +109,8 @@ class Discriminator(nn.Module):
         #print(x.size())
         x=F.relu(self.dis4(x))
         #print(x.size())
-        x=F.relu(self.dis5(x)).view(-1,32)
-        x = self.dis6(x)
+        x=F.relu(self.dis5(x)).view(-1,256)
+        x = F.relu(self.dis6(x))
         return (x)
 
 D=Discriminator()
