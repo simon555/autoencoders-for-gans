@@ -55,7 +55,11 @@ class Generator(nn.Module):
 
         self.gen0=nn.Linear(Z_dim,15*15)    
         self.gen1=nn.Conv2d(1,8,3,padding=1)
-        self.gen2=nn.Conv2d(8,1,3)   
+        self.gen2=nn.Conv2d(8,16,3,padding=1)
+        self.gen3=nn.Conv2d(16,32,3,padding=1)
+        self.gen4=nn.Conv2d(32,16,3,padding=1)
+        self.gen5=nn.Conv2d(16,8,3,padding=1)
+        self.gen6=nn.Conv2d(8,1,3)   
         
         self.useCuda=torch.cuda.is_available()
         
@@ -68,8 +72,12 @@ class Generator(nn.Module):
     def forward(self,noise):
         x=F.relu(self.gen0(noise)).view(-1,1,15,15)
         x=F.relu(self.gen1(x))
+        x=F.relu(self.gen2(x))
+        x=F.relu(self.gen3(x))
         x = self.upSample(x)
-        x = F.sigmoid(self.gen2(x))
+        x=F.relu(self.gen4(x))
+        x=F.relu(self.gen5(x))
+        x = F.sigmoid(self.gen6(x))
         return (x)
     
 G=Generator()
@@ -78,9 +86,12 @@ class Discriminator(nn.Module):
     def __init__(self,
                  useCuda=False):
         super(Discriminator, self).__init__()
-        self.dis1=nn.Conv2d(1,8,3,stride=2)
-        self.dis2=nn.Conv2d(8,16,3,stride=2)   
-        self.dis3=nn.Linear(576,1)
+        self.dis1=nn.Conv2d(1,8,3,stride=1)
+        self.dis2=nn.Conv2d(8,16,3,stride=2)
+        self.dis3=nn.Conv2d(16,32,3,stride=1)
+        self.dis4=nn.Conv2d(32,16,3,stride=2)
+        self.dis5=nn.Conv2d(16,8,3,stride=1)   
+        self.dis6=nn.Linear(32,1)
         self.useCuda=torch.cuda.is_available()
         
         if self.useCuda:
@@ -91,8 +102,15 @@ class Discriminator(nn.Module):
         
     def forward(self,noise):
         x=F.relu(self.dis1(noise))
-        x = F.relu(self.dis2(x)).view(-1,576)
-        x = self.dis3(x)
+        #print(x.size())
+        x=F.relu(self.dis2(x))
+        #print(x.size())
+        x=F.relu(self.dis3(x))
+        #print(x.size())
+        x=F.relu(self.dis4(x))
+        #print(x.size())
+        x=F.relu(self.dis5(x)).view(-1,32)
+        x = self.dis6(x)
         return (x)
 
 D=Discriminator()
