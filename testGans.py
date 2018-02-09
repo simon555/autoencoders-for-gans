@@ -123,12 +123,17 @@ for epoch in range(NumberOfEpochs):
         X, _ = data[0],data[1]
         X = Variable(X)
         
+        
         tmp=X.size()[0]
         if mb_size!=tmp:
             mb_size=tmp
             ones_label=Variable(torch.ones(mb_size,1))
             zeros_label=Variable(torch.zeros(mb_size,1))
         z = Variable(torch.randn(mb_size, Z_dim))
+        
+        if torch.cuda.is_available():
+            X=X.cuda()
+            z=z.cuda()
     
     
         # Dicriminator forward-loss-backward-update
@@ -159,6 +164,9 @@ for epoch in range(NumberOfEpochs):
     
     # Generator forward-loss-backward-update
     z = Variable(torch.randn(mb_size, Z_dim))
+    if torch.cuda.is_available():
+        z=z.cuda()
+        
     G_sample = G(z)
     D_fake = D(G_sample)
 
