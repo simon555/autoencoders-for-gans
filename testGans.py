@@ -12,7 +12,7 @@ import torch.nn.functional as F
 import matplotlib.pyplot as pl
 
 import visdom
-vis=visdom.Visdom(port=8097,env='classic_gan')
+vis=visdom.Visdom(port=24345,env='wass_gan')
 
 
 def rescale(img):
@@ -24,7 +24,7 @@ def rescale(img):
 transform = transforms.Compose(
         [transforms.ToTensor(),transforms.Lambda(rescale)])
  
-NumberOfEpochs=200
+NumberOfEpochs=2000
 mb_size = 64
 Z_dim = 100
 X_dim = 28
@@ -37,7 +37,6 @@ trainset = torchvision.datasets.MNIST(root='./datasets/MNIST', train=True,
         
 mnist = torch.utils.data.DataLoader(trainset, batch_size=mb_size,
                                               shuffle=True, num_workers=0)
-
 
 
 def xavier_init(size):
@@ -54,7 +53,7 @@ class Generator(nn.Module):
         self.upSample= nn.Upsample(scale_factor=2, mode='bilinear')
 
         self.gen0=nn.Linear(Z_dim,15*15)    
-        self.gen1=nn.Conv2d(1,8,1)
+        self.gen1=nn.Conv2d(1,8,3,padding=1)
         self.gen2=nn.Conv2d(8,1,3)   
         
         self.useCuda=torch.cuda.is_available()
@@ -92,7 +91,7 @@ class Discriminator(nn.Module):
     def forward(self,noise):
         x=F.relu(self.dis1(noise))
         x = F.relu(self.dis2(x)).view(-1,576)
-        x = F.sigmoid(self.dis3(x))
+        x = self.dis3(x)
         return (x)
 
 D=Discriminator()
@@ -109,13 +108,15 @@ print('çhoice',choice.size())
 
 
 
-G_solver = optim.Adam(G.parameters(), lr=1e-3)
-D_solver = optim.Adam(D.parameters(), lr=1e-3)
+G_solver = optim.Adam(G.parameters(), lr=5e-5)
+D_solver = optim.Adam(D.parameters(), lr=5e-5)
 
 ones_label=Variable(torch.ones(mb_size,1))
 zeros_label=Variable(torch.zeros(mb_size,1))
 for epoch in range(NumberOfEpochs):
-    for it,data in enumerate(mnist):
+    
+    for it in range(5):
+        data=next(iter(mnist))
         # Sample data
         G_solver.zero_grad()
         D_solver.zero_grad()
@@ -136,39 +137,45 @@ for epoch in range(NumberOfEpochs):
         D_real = D(X)
         D_fake = D(G_sample)
     
-        D_loss_real = F.binary_cross_entropy(D_real, ones_label)
-        D_loss_fake = F.binary_cross_entropy(D_fake, zeros_label)
-        D_loss = D_loss_real + D_loss_fake 
+        D_loss = -(torch.mean(D_real) - torch.mean(D_fake))   
         
         D_loss.backward()
         D_solver.step()
         
     
-        # Generator forward-loss-backward-update
-        ## some codes
-          # Housekeeping - reset gradient
-        G_solver.zero_grad()
-        D_solver.zero_grad()
-        
-        # Generator forward-loss-backward-update
-        z = Variable(torch.randn(mb_size, Z_dim))
-        G_sample = G(z)
-        D_fake = D(G_sample)
     
-        G_loss = F.binary_cross_entropy(D_fake, ones_label)
+    # Generator forward-loss-backward-update
+    ## some codes
+      # Housekeeping - reset gradient
+    G_solver.zero_grad()
+    D_solver.zero_grad()
     
-        G_loss.backward()
-        G_solver.step()
+    for p in D.parameters():
+        p.data.clamp_(-0.01, 0.01)
+    
+    
+    
+    # Generator forward-loss-backward-update
+    z = Variable(torch.randn(mb_size, Z_dim))
+    G_sample = G(z)
+    D_fake = D(G_sample)
+
+    G_loss = -torch.mean(D_fake)    
+    
+    G_loss.backward()
+    G_solver.step()
         
-        if it%200==0:
-            print(it)
-            img=G_sample.view(mb_size,28,28).data.numpy()
-            try:
-                display=vis.images(G_sample.view(mb_size,1,28,28).data,
-                        opts=dict(title='generated'),win=display)
-            except:
-                display=vis.images(G_sample.view(mb_size,1,28,28).data,
-                        opts=dict(title='generated'))
+        
+    
+    if epoch%10==0:
+        print(epoch)
+        img=G_sample.view(mb_size,28,28).data.numpy()
+        try:
+            display=vis.images(G_sample.view(mb_size,1,28,28).data,
+                    opts=dict(title='generated'),win=display)
+        except:
+            display=vis.images(G_sample.view(mb_size,1,28,28).data,
+                    opts=dict(title='generated'))
             
         
        
