@@ -140,6 +140,9 @@ for epoch in range(NumberOfEpochs):
         D_loss = -(torch.mean(D_real) - torch.mean(D_fake))   
         
         D_loss.backward()
+        for p in D.parameters():
+            
+            p.grad.data.clamp_(-0.01,0.01)
         D_solver.step()
         
     
@@ -150,8 +153,7 @@ for epoch in range(NumberOfEpochs):
     G_solver.zero_grad()
     D_solver.zero_grad()
     
-    for p in D.parameters():
-        p.data.clamp_(-0.01, 0.01)
+    
     
     
     
