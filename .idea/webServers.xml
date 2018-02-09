@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="WebServers">
+    <option name="servers">
+      <webServer id="b3414506-e026-4bad-b907-46952450cb5c" name="elisa2.iro.umontreal.ca" url="http://elisa2.iro.umontreal.ca">
+        <fileTransfer host="elisa2.iro.umontreal.ca" port="22" accessType="SFTP">
+          <advancedOptions>
+            <advancedOptions dataProtectionLevel="Private" />
+          </advancedOptions>
+          <option name="port" value="22" />
+        </fileTransfer>
+      </webServer>
+    </option>
+  </component>
+</project>
