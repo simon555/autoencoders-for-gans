@@ -12,7 +12,8 @@ import torch.nn.functional as F
 import matplotlib.pyplot as pl
 
 import visdom
-vis=visdom.Visdom(port=24345,env='wass_gan')
+vis=visdom.Visdom(server='http://eos11',port=24345,env='wass_gan') 
+
 
 
 def rescale(img):
@@ -24,7 +25,7 @@ def rescale(img):
 transform = transforms.Compose(
         [transforms.ToTensor(),transforms.Lambda(rescale)])
  
-NumberOfEpochs=2000
+NumberOfEpochs=20000000
 mb_size = 64
 Z_dim = 100
 X_dim = 28
@@ -99,11 +100,11 @@ D=Discriminator()
 # =============================================================================
 # test
 # =============================================================================
-noise=Variable(torch.randn(23,100))
-fake=G(noise)
-print('fake',fake.size())
-choice=D(fake)
-print('çhoice',choice.size())
+#noise=Variable(torch.randn(23,100))
+#fake=G(noise)
+#print('fake',fake.size())
+#choice=D(fake)
+#print('çhoice',choice.size())
 
 
 
@@ -113,6 +114,13 @@ D_solver = optim.Adam(D.parameters(), lr=5e-5)
 
 ones_label=Variable(torch.ones(mb_size,1))
 zeros_label=Variable(torch.zeros(mb_size,1))
+
+if torch.cuda.is_available():
+    ones_label=ones_label.cuda()
+    zeros_label=zeros_label.cuda()
+
+
+
 for epoch in range(NumberOfEpochs):
     
     for it in range(5):
@@ -129,6 +137,11 @@ for epoch in range(NumberOfEpochs):
             mb_size=tmp
             ones_label=Variable(torch.ones(mb_size,1))
             zeros_label=Variable(torch.zeros(mb_size,1))
+            if torch.cuda.is_available():
+                ones_label=ones_label.cuda()
+                zeros_label=zeros_label.cuda()
+
+
         z = Variable(torch.randn(mb_size, Z_dim))
         
         if torch.cuda.is_available():
@@ -179,12 +192,12 @@ for epoch in range(NumberOfEpochs):
     
     if epoch%10==0:
         print(epoch)
-        img=G_sample.view(mb_size,28,28).data.numpy()
+        
         try:
-            display=vis.images(G_sample.view(mb_size,1,28,28).data,
+            display=vis.images(G_sample.view(mb_size,1,28,28).cpu().data,
                     opts=dict(title='generated'),win=display)
         except:
-            display=vis.images(G_sample.view(mb_size,1,28,28).data,
+            display=vis.images(G_sample.view(mb_size,1,28,28).cpu().data,
                     opts=dict(title='generated'))
             
         
