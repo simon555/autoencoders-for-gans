@@ -201,8 +201,10 @@ if __name__=='__main__':
     
     if idxModel=='MyDeep':
         model=modelFactory.ModelAE(depth=depth,lastActivation=lastActivation)  
+    elif idxModel=='plain':
+        model=modelFactory.ModelAE(depth=depth)
     else:
-        model=modelFactory.ModelAE()  
+        model=modelFactory.ModelAE()
     
     
     print('model loaded')

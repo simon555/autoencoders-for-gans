@@ -1,0 +1,14 @@
+experience done on : 06/03/2018 at 19:33:29  
+       depth             1 
+     dataset         cifar 
+ Nexperience             1 
+       Nplot             1 
+lastActivation       sigmoid 
+  choiceLoss        L1Loss 
+     Nepochs         10000 
+learningRate         0.001 
+    idxModel         plain 
+ NbatchTrain           128 
+       Nsave            10 
+  NbatchTest           128 
+epoch,trainLoss,testLoss  

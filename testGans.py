@@ -110,7 +110,7 @@ class Discriminator(nn.Module):
         x=F.relu(self.dis4(x))
         #print(x.size())
         x=F.relu(self.dis5(x)).view(-1,256)
-        x = F.relu(self.dis6(x))
+        x = self.dis6(x)
         return (x)
 
 D=Discriminator()
@@ -176,10 +176,12 @@ for epoch in range(NumberOfEpochs):
         D_loss = -(torch.mean(D_real) - torch.mean(D_fake))   
         
         D_loss.backward()
+        D_solver.step()
+        
         for p in D.parameters():
             
-            p.grad.data.clamp_(-0.01,0.01)
-        D_solver.step()
+            p.data.clamp_(-0.01,0.01)
+        
         
     
     
@@ -213,10 +215,9 @@ for epoch in range(NumberOfEpochs):
         
         try:
             display=vis.images(G_sample.view(mb_size,1,28,28).cpu().data,
-                    opts=dict(title='generated'),win=display)
+                    opts=dict(title='generated_iteration {}'.format(epoch)),win=display)
         except:
             display=vis.images(G_sample.view(mb_size,1,28,28).cpu().data,
-                    opts=dict(title='generated'))
-            
+                    opts=dict(title='generated_iteraton {}'.format(epoch)))     
         
        
