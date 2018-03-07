@@ -52,9 +52,9 @@ Nplot=1
 Nsave=10
 Nexperience=1 
 learningRate=0.001
-idxModel='Unet_Modified'
+idxModel='plain'
 choiceLoss='L1Loss'
-dataset='svhn'
+dataset='cifar'
 depth=4
 lastActivation='sigmoid'
 
@@ -192,6 +192,8 @@ if __name__=='__main__':
         from local_models import SingleCodeUnet as modelFactory
     elif idxModel=='MyDeep':
         from local_models import MyDeep as modelFactory
+    elif idxModel=='plain':
+        from local_models import plain as modelFactory
 
     
     
