@@ -54,14 +54,14 @@ class ModelAE(nn.Module):
         for i, module in enumerate(self.EncodeConvs):
             image=module(image)
             image=F.relu(image)
-            print(image.size())
+            #print(image.size())
             
         for i, module in enumerate(self.DeconvConvs):
             image=module(image)
             image=F.relu(image)
             deconvModule=self.DeconvUpsample[i]
             image=deconvModule(image)
-            print(image.size())
+            #print(image.size())
 #        
         image=self.lastConv(image)
         image=F.sigmoid(image)
