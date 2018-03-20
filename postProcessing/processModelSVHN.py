@@ -32,28 +32,31 @@ def rescale(img):
     ma=img.max()
     return((img-mi)/(ma-mi))
     
-    
-idxModel='Resnet_Simple_cifar_Exp2'
+modelName='Resnet_Simple'
+idxModel=modelName+'_cifar_Exp2'
 
 dataset='cifar'
     
-fileDirectory = "../results/{}/".format(idxModel)
+fileDirectory = os.path.join(currentDirectory,"..", "results","{}".format(idxModel))
 
-dataFolder=fileDirectory+'data/'
-sys.path.insert(0,dataFolder)
+dataFolder=os.path.join(fileDirectory,'data')
+sys.path.insert(0,'C:/Users/simon/Desktop/MILA/autoencoders-for-gans/postProcessing/../{}/data'.format(idxModel))
 
-filename=fileDirectory+'models/bestTestLoss.pt'
+filename=os.path.join(fileDirectory,'models','bestTestLoss.pt')
 if not os.path.exists(filename):
     print('downloading the model from remote...')
-    if not os.path.exists(fileDirectory+'models/'):
+    if not os.path.exists(os.path.join(fileDirectory,'models')):
         os.makedirs(fileDirectory+'models/')
     
-    commandBash='pscp sebbaghs@elisa2.iro.umontreal.ca:/data/milatmp1/sebbaghs/autoencoders-for-gans/results/{}/models/bestTestloss.pt'.format(idxModel)
+    commandBash='pscp sebbaghs@elisa2.iro.umontreal.ca:/data/milatmp1/sebbaghs/autoencoders-for-gans/results/{}/models/bestTestLoss.pt'.format(idxModel)
     commandBash+=' {}'.format(filename)
     
     check=os.system(commandBash)
     print('done : ',check)
+    
+
 import model as mod
+
 print('model downloaded')
 ##SPECIFIC TO MYDEEP
 #the_model = mod.ModelAE(depth=2,lastActivation='sigmoid')
@@ -111,4 +114,5 @@ for i,data in enumerate(testset):
     
     #pl.savefig('../results/{}/image{}'.format(idxModel,i))
     pl.show()
+
 
