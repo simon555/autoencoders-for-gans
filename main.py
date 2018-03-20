@@ -196,7 +196,7 @@ if __name__=='__main__':
     elif idxModel=='MyDeep':
         from local_models import MyDeep as modelFactory
     elif idxModel=='Resnet_Simple':
-        from local_models import Resnet_Modified as modelFactory
+        from local_models import Resnet_Simple as modelFactory
     elif idxModel=='plain':
         from local_models import plain as modelFactory
 

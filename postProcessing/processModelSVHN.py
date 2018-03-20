@@ -33,7 +33,7 @@ def rescale(img):
     return((img-mi)/(ma-mi))
     
     
-idxModel='Resnet_Modified_cifar_Exp2'
+idxModel='Resnet_Simple_cifar_Exp2'
 
 dataset='cifar'
     
@@ -48,13 +48,13 @@ if not os.path.exists(filename):
     if not os.path.exists(fileDirectory+'models/'):
         os.makedirs(fileDirectory+'models/')
     
-    commandBash='pscp sebbaghs@elisa2.iro.umontreal.ca:/data/milatmp1/sebbaghs/autoencoders-for-gans/results/{}/models/Epoch{}.pt'.format(idxModel,Epoch)
+    commandBash='pscp sebbaghs@elisa2.iro.umontreal.ca:/data/milatmp1/sebbaghs/autoencoders-for-gans/results/{}/models/bestTestloss.pt'.format(idxModel)
     commandBash+=' {}'.format(filename)
     
     check=os.system(commandBash)
     print('done : ',check)
 import model as mod
-
+print('model downloaded')
 ##SPECIFIC TO MYDEEP
 #the_model = mod.ModelAE(depth=2,lastActivation='sigmoid')
 the_model = mod.ModelAE()
