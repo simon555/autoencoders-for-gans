@@ -122,6 +122,9 @@ elif choiceLoss=='MSELoss':
 
 if __name__=='__main__':
     
+    #best loss to track
+    bestTestLoss=100000
+    
     #loading dataset
     
     def rescale(img):
@@ -326,7 +329,18 @@ if __name__=='__main__':
         #save the data
         totalLoss/=len(trainloader)
         print("End of epoch ",epoch+1," error on training set ",totalLoss ," error on test ", testLoss)
+        
+        #keep track of the best model on test dataset
+        if testLoss<bestTestLoss:
+            print('new best test loss. Previous : {}, new {}'.format(bestTestLoss,testLoss))
+            bestTestLoss=testLoss
+            print('saving the new best model....')
+            torch.save(model.state_dict(),directoryModel+'/bestTestLoss.pt')
 
+
+
+        
+        
         f= open(filename,"a")
         f.write("{},{},{}  \n".format(epoch+1,totalLoss,testLoss))
         f.close()
@@ -338,10 +352,8 @@ if __name__=='__main__':
 
         #save the model
         if epoch%Nsave==0:
-            print("saving to model file", directoryModel+'/Epoch{}.pt'.format(epoch+1))
-            torch.save(model.state_dict(),directoryModel+'/Epoch{}.pt'.format(epoch+1))
-    #final save
-    torch.save(model.state_dict(),directoryModel+'Epoch{}Final.pt'.format(epoch+1))
+            print("saving the model....")
+            torch.save(model.state_dict(),directoryModel+'/modelWeights.pt')
     
     
     
