@@ -33,16 +33,16 @@ def rescale(img):
     return((img-mi)/(ma-mi))
     
     
-idxModel='Unet_Modified_cifar_Exp3'
-Epoch=91
-dataset='svhn'
+idxModel='Resnet_Modified_cifar_Exp2'
+
+dataset='cifar'
     
 fileDirectory = "../results/{}/".format(idxModel)
 
 dataFolder=fileDirectory+'data/'
 sys.path.insert(0,dataFolder)
 
-filename=fileDirectory+'models/Epoch{}.pt'.format(Epoch)
+filename=fileDirectory+'models/bestTestLoss.pt'
 if not os.path.exists(filename):
     print('downloading the model from remote...')
     if not os.path.exists(fileDirectory+'models/'):
@@ -61,7 +61,7 @@ the_model = mod.ModelAE()
 
 
 
-the_model.load_state_dict(torch.load(filename))
+the_model.load_state_dict(torch.load(filename, map_location=lambda storage, loc: storage))
 the_model.cpu()
 
 
