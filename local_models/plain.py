@@ -54,7 +54,7 @@ class ModelAE(nn.Module):
         for i, module in enumerate(self.EncodeConvs):
             image=module(image)
             image=F.relu(image)
-            #print(image.size())
+            # print(image.size())
             
         for i, module in enumerate(self.DeconvConvs):
             image=module(image)
