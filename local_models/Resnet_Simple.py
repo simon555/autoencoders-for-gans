@@ -14,15 +14,16 @@ import torch.nn.functional as F
 
 
 class Block(nn.Module):
-    def __init__(self, Nchannels):        
+    def __init__(self, inputChannel,
+                 outputChannel):        
         super(Block, self).__init__()
         
-        self.Conv_1=nn.Conv2d(Nchannels,Nchannels,3,stride=1,padding=1) 
-        self.BN_1=torch.nn.BatchNorm2d(Nchannels)
-        self.Conv_2=nn.Conv2d(Nchannels,Nchannels,3,stride=1,padding=1)
-        self.BN_2=torch.nn.BatchNorm2d(Nchannels)
-        self.Conv_3=nn.Conv2d(Nchannels,Nchannels,3,stride=1,padding=1) 
-        self.BN_3=torch.nn.BatchNorm2d(Nchannels)
+        self.Conv_1=nn.Conv2d(inputChannel,inputChannel,3,stride=1,padding=1) 
+        self.BN_1=torch.nn.BatchNorm2d(inputChannel)
+        self.Conv_2=nn.Conv2d(inputChannel,inputChannel,3,stride=1,padding=1)
+        self.BN_2=torch.nn.BatchNorm2d(inputChannel)
+        self.Conv_3=nn.Conv2d(inputChannel,outputChannel,3,stride=1,padding=1) 
+        self.BN_3=torch.nn.BatchNorm2d(outputChannel)
         
        
             
@@ -46,6 +47,7 @@ class Block(nn.Module):
         
         return(x)
 
+
       
 
 
@@ -67,27 +69,27 @@ class ModelAE(nn.Module):
 
         
         
-        self.Code_B1=Block(3)  
-        self.Code_B2=Block(3)     
+        self.Code_B1=Block(3,64)  
+        self.Code_B2=Block(64,3)     
         
-        self.Code_B3=Block(3)  
-        self.Code_B4=Block(3)  
+        self.Code_B3=Block(3,128)  
+        self.Code_B4=Block(128,3)  
         
-        self.Code_B5=Block(3)  
-        self.Code_B6=Block(3)
+        self.Code_B5=Block(3,256)  
+        self.Code_B6=Block(256,3)
         
         
         
         
         #decoding blocks
-        self.DeCode_B1=Block(3)  
-        self.DeCode_B2=Block(3)  
+        self.DeCode_B1=Block(3,256)  
+        self.DeCode_B2=Block(256,3)  
         #self.Conv_Decode1=nn.Conv2d(2*Nblocks,Nblocks,3,stride=1,padding=1) 
-        self.DeCode_B3=Block(3)  
-        self.DeCode_B4=Block(3)  
+        self.DeCode_B3=Block(3,128)  
+        self.DeCode_B4=Block(128,3)  
         #self.Conv_Decode2=nn.Conv2d(2*Nblocks,Nblocks,3,stride=1,padding=1) 
-        self.DeCode_B5=Block(3)  
-        self.DeCode_B6=Block(3)  
+        self.DeCode_B5=Block(3,64)  
+        self.DeCode_B6=Block(64,3)  
         
         self.DeCode_Conv1=nn.Conv2d(3,3,3,stride=1,padding=1)
 
