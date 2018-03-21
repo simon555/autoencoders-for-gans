@@ -69,27 +69,35 @@ class ModelAE(nn.Module):
 
         
         
-        self.Code_B1=Block(3,64)  
-        self.Code_B2=Block(64,3)     
+        self.Code_B1=Block(3,32)
+        self.Code_B1_1=Block(32,32)        
+        self.Code_B2=Block(32,3)     
         
-        self.Code_B3=Block(3,128)  
-        self.Code_B4=Block(128,3)  
+        self.Code_B3=Block(3,64)  
+        self.Code_B3_1=Block(64,64) 
+        self.Code_B4=Block(64,3)  
         
-        self.Code_B5=Block(3,256)  
-        self.Code_B6=Block(256,3)
+        self.Code_B5=Block(3,128)  
+        self.Code_B5_1=Block(128,128) 
+        self.Code_B6=Block(128,3)
         
         
         
         
         #decoding blocks
-        self.DeCode_B1=Block(3,256)  
-        self.DeCode_B2=Block(256,3)  
+        self.DeCode_B1=Block(3,128) 
+        self.DeCode_B1_1=Block(128,128) 
+        self.DeCode_B2=Block(128,3)  
         #self.Conv_Decode1=nn.Conv2d(2*Nblocks,Nblocks,3,stride=1,padding=1) 
-        self.DeCode_B3=Block(3,128)  
-        self.DeCode_B4=Block(128,3)  
+        
+        self.DeCode_B3=Block(3,64)  
+        self.DeCode_B3_1=Block(64,64)  
+        self.DeCode_B4=Block(64,3)  
+        
         #self.Conv_Decode2=nn.Conv2d(2*Nblocks,Nblocks,3,stride=1,padding=1) 
-        self.DeCode_B5=Block(3,64)  
-        self.DeCode_B6=Block(64,3)  
+        self.DeCode_B5=Block(3,32)  
+        self.DeCode_B5_1=Block(32,32)  
+        self.DeCode_B6=Block(32,3)  
         
         self.DeCode_Conv1=nn.Conv2d(3,3,3,stride=1,padding=1)
 
@@ -97,23 +105,23 @@ class ModelAE(nn.Module):
         if (self.useCuda):
             self.cuda()              
 #            
-            #encoding blocks
-            self.Code_B1.cuda()
-            self.Code_B2.cuda()
-            self.Code_B3.cuda()
-            self.Code_B4.cuda()
-            self.Code_B5.cuda()
-            self.Code_B6.cuda()
-            
-            #decoding blocks
-            self.DeCode_B1.cuda()
-            self.DeCode_B2.cuda()
-            #self.Conv_Decode1.cuda()
-            self.DeCode_B3.cuda()
-            self.DeCode_B4.cuda()
-            #self.Conv_Decode2.cuda()
-            self.DeCode_B5.cuda()
-            self.DeCode_B6.cuda()
+#            #encoding blocks
+#            self.Code_B1.cuda()
+#            self.Code_B2.cuda()
+#            self.Code_B3.cuda()
+#            self.Code_B4.cuda()
+#            self.Code_B5.cuda()
+#            self.Code_B6.cuda()
+#            
+#            #decoding blocks
+#            self.DeCode_B1.cuda()
+#            self.DeCode_B2.cuda()
+#            #self.Conv_Decode1.cuda()
+#            self.DeCode_B3.cuda()
+#            self.DeCode_B4.cuda()
+#            #self.Conv_Decode2.cuda()
+#            self.DeCode_B5.cuda()
+#            self.DeCode_B6.cuda()
             
             
             
@@ -124,11 +132,13 @@ class ModelAE(nn.Module):
  
     def code(self,image):             
         x=self.Code_B1.forward(image)
+        x=self.Code_B1_1.forward(x)
         x=self.Code_B2.forward(x)       
         x=self.pool(x)           
 
 
         x=self.Code_B3.forward(x)
+        x=self.Code_B3_1.forward(x)
         x=self.Code_B4.forward(x)
         x=self.pool(x)           
 
@@ -136,6 +146,7 @@ class ModelAE(nn.Module):
 
         #x=self.Code_Conv1(x)        
         x=self.Code_B5.forward(x)
+        x=self.Code_B5_1.forward(x)
         x=self.Code_B6.forward(x)
         x=self.pool(x)           
         
@@ -146,17 +157,20 @@ class ModelAE(nn.Module):
          
                
         x=self.DeCode_B1.forward(image)
+        x=self.DeCode_B1_1.forward(x)
         x=self.DeCode_B2.forward(x)   
         x=self.upSample(x)        
 
                
         
         x=self.DeCode_B3.forward(x)
+        x=self.DeCode_B3_1.forward(x)
         x=self.DeCode_B4.forward(x)   
         x=self.upSample(x)        
               
         
         x=self.DeCode_B5.forward(x)
+        x=self.DeCode_B5_1.forward(x)
         x=self.DeCode_B6.forward(x)
         x=self.upSample(x)        
 
