@@ -33,20 +33,19 @@ def rescale(img):
     return((img-mi)/(ma-mi))
     
 modelName='Resnet_Simple'
-idxModel=modelName+'_cifar_Exp2'
+idxModel=modelName+'_cifar_Exp1'
 
 dataset='cifar'
     
 fileDirectory = os.path.join(currentDirectory,"..", "results","{}".format(idxModel))
 
 dataFolder=os.path.join(fileDirectory,'data')
-sys.path.insert(0,'C:/Users/simon/Desktop/MILA/autoencoders-for-gans/postProcessing/../{}/data'.format(idxModel))
 
 filename=os.path.join(fileDirectory,'models','bestTestLoss.pt')
 if not os.path.exists(filename):
     print('downloading the model from remote...')
     if not os.path.exists(os.path.join(fileDirectory,'models')):
-        os.makedirs(fileDirectory+'models/')
+        os.makedirs(os.path.join(fileDirectory,'models'))
     
     commandBash='pscp sebbaghs@elisa2.iro.umontreal.ca:/data/milatmp1/sebbaghs/autoencoders-for-gans/results/{}/models/bestTestLoss.pt'.format(idxModel)
     commandBash+=' {}'.format(filename)
@@ -54,6 +53,7 @@ if not os.path.exists(filename):
     check=os.system(commandBash)
     print('done : ',check)
     
+sys.path.insert(0,'C:/Users/simon/Desktop/MILA/autoencoders-for-gans/postProcessing/../results/{}/data'.format(idxModel))
 
 import model as mod
 

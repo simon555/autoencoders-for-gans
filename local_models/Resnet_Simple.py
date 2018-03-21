@@ -87,15 +87,15 @@ class ModelAE(nn.Module):
         #decoding blocks
         self.DeCode_B1=Block(3,128) 
         self.DeCode_B1_1=Block(128,128) 
-        self.DeCode_B2=Block(128,3)  
+        self.DeCode_B2=Block(128,64)  
         #self.Conv_Decode1=nn.Conv2d(2*Nblocks,Nblocks,3,stride=1,padding=1) 
         
-        self.DeCode_B3=Block(3,64)  
+        self.DeCode_B3=Block(64,64)  
         self.DeCode_B3_1=Block(64,64)  
-        self.DeCode_B4=Block(64,3)  
+        self.DeCode_B4=Block(64,32)  
         
         #self.Conv_Decode2=nn.Conv2d(2*Nblocks,Nblocks,3,stride=1,padding=1) 
-        self.DeCode_B5=Block(3,32)  
+        self.DeCode_B5=Block(32,32)  
         self.DeCode_B5_1=Block(32,32)  
         self.DeCode_B6=Block(32,3)  
         
